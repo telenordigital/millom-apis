@@ -1,0 +1,690 @@
+---
+openapi: "3.0.0"
+info:
+  title: "Offer API BU Backend integration"
+  description: "Offer API BU Backend integration.\
+    \ Provides API methods to query current subscription balance, retrieve offers and activate offers"
+  version: "1.0.0"
+servers:
+- url: "https://bubackend.example.com/v1"
+security:
+- OAuth2:
+  - "cco.dd.data-plan.gen.inquire"
+  - "cco.dd.data-plan.gen.activate"
+paths:
+  /balance/{customerId}:
+    get:
+      description: "Returns the current customer status and balance."
+      parameters:
+      - name: "customerId"
+        in: "path"
+        description: "Value of the customer identifier. In case of MSISDN format should\
+          \ be CC + (NDC + SN), being CC the country code, NDC the national destination\
+          \ code and SN the subscriber number, according to ITU-T E.164 format."
+        required: true
+        style: "simple"
+        explode: false
+        schema:
+          type: "string"
+      - name: "customerIdType"
+        in: "query"
+        description: "Type of Id used in the customerId parameter. Possible options\
+          \ are MSISDN, Email, ConnectID."
+        required: true
+        style: "form"
+        explode: true
+        schema:
+          type: "string"
+      - name: "transId"
+        in: "query"
+        description: "Unique transaction id that must allow a minimum of 10 alphanumeric\
+          \ characters including dashes and dots. Preferebly UUID format IETF RFC4122."
+        required: false
+        style: "form"
+        explode: true
+        schema:
+          type: "string"
+      - name: "channelId"
+        in: "query"
+        description: "Id that identifies the channel where the request comes from.\
+          \ I.e. SMS/USSD/IVR/App/Web"
+        required: true
+        style: "form"
+        explode: true
+        schema:
+          type: "string"
+      - name: "serviceProviderId"
+        in: "query"
+        description: "Id that identifies the service provider"
+        required: true
+        style: "form"
+        explode: true
+        schema:
+          type: "string"
+      - name: "lang"
+        in: "query"
+        description: "Language returned for plan name and plan description in ISO\
+          \ 639-1"
+        required: false
+        style: "form"
+        explode: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "A JSON containing customer status, balance and an array of\
+            \ subscribed dataplans."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/accountStatus"
+        "400":
+          description: "Invalid request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /offers/{customerId}:
+    get:
+      description: "Returns the dataplan offers from BU when a Service Provider decides\
+        \ that they want to present an offer to the end user."
+      parameters:
+      - name: "customerId"
+        in: "path"
+        description: "Value of the customer identifier. In case of MSISDN format should\
+          \ be CC + (NDC + SN), being CC the country code, NDC the national destination\
+          \ code and SN the subscriber number, according to ITU-T E.164 format."
+        required: true
+        style: "simple"
+        explode: false
+        schema:
+          type: "string"
+      - name: "customerIdType"
+        in: "query"
+        description: "Type of Id used in the customerId parameter. Possible options\
+          \ are MSISDN, Email, ConnectID."
+        required: true
+        style: "form"
+        explode: true
+        schema:
+          type: "string"
+      - name: "transId"
+        in: "query"
+        description: "Unique transaction id that must allow a minimum of 10 alphanumeric\
+          \ characters including dashes and dots. Preferebly UUID format IETF RFC4122."
+        required: false
+        style: "form"
+        explode: true
+        schema:
+          type: "string"
+      - name: "channelId"
+        in: "query"
+        description: "Id that identifies the channel where the request comes from.\
+          \ I.e. SMS/USSD/IVR/App/Web"
+        required: true
+        style: "form"
+        explode: true
+        schema:
+          type: "string"
+      - name: "serviceProviderId"
+        in: "query"
+        description: "Id that identifies the service provider"
+        required: true
+        style: "form"
+        explode: true
+        schema:
+          type: "string"
+      - name: "lang"
+        in: "query"
+        description: "Language returned for plan name and plan description in ISO\
+          \ 639-1"
+        required: false
+        style: "form"
+        explode: true
+        schema:
+          type: "string"
+      - name: "offerType"
+        in: "query"
+        description: "Describes what kind of offers to be shown, various options could\
+          \ be(Data/Voice/SMS/friends & Family/Roaming/Music/Youtube/Social/All)."
+        required: false
+        style: "form"
+        explode: true
+        schema:
+          type: "string"
+      - name: "maxPrice"
+        in: "query"
+        description: "Indicates the maximum price of the offers to be returned in\
+          \ response. If specified, only offers below that price will be returned."
+        required: false
+        style: "form"
+        explode: true
+        schema:
+          type: "string"
+      - name: "numberofOffers"
+        in: "query"
+        description: "Indicates the number of offers to be returned in response."
+        required: false
+        style: "form"
+        explode: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "A JSON containing dataplan offers available for a user."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/offersInfo"
+              example:
+                subscriberState: "GOOD_TO_GO"
+                offers:
+                - id: "plan1234"
+                  name: "3G Daily Bundle"
+                  fundSource: "PURCHASE"
+                  quota:
+                    quotaBytes: 3145728000
+                  appType:
+                  - "MUSIC"
+                  overusagePolicy: "THROTTLED"
+                  speedLimit: 384
+                  duration: 86400
+                  cost:
+                    currency: "PKR"
+                    value: "160.00"
+                  recurrenceFrequency:
+                    frequency: "DAILY"
+                - id: "plan1235"
+                  name: "Daily Social Pack"
+                  fundSource: "PURCHASE"
+                  quota:
+                    quotaMinutes: 1440
+                  appType:
+                  - "GENERIC"
+                  overusagePolicy: "PAY_AS_YOU_GO"
+                  speedLimit: 384
+                  duration: 86400
+                  cost:
+                    currency: "PKR"
+                    value: "60.00"
+                  recurrenceFrequency:
+                    frequency: "DAILY"
+        "400":
+          description: "Invalid request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /activate/{customerId}:
+    post:
+      description: "Activates a given offer for that specific user."
+      parameters:
+      - name: "customerId"
+        in: "path"
+        description: "Value of the customer identifier. In case of MSISDN format should\
+          \ be CC + (NDC + SN), being CC the country code, NDC the national destination\
+          \ code and SN the subscriber number, according to ITU-T E.164 format."
+        required: true
+        style: "simple"
+        explode: false
+        schema:
+          type: "string"
+      - name: "customerIdType"
+        in: "query"
+        description: "Type of Id used in the customerId parameter. Possible options\
+          \ are MSISDN, Email, ConnectID."
+        required: true
+        style: "form"
+        explode: true
+        schema:
+          type: "string"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - "channelId"
+              - "offerId"
+              - "serviceProviderId"
+              - "transId"
+              type: "object"
+              properties:
+                channelId:
+                  type: "string"
+                  description: "Id that identifies the channel where the request comes\
+                    \ from. I.e. SMS/USSD/IVR/App/Web"
+                serviceProviderId:
+                  type: "string"
+                  description: "Id that identifies the service provider"
+                offerId:
+                  type: "string"
+                  description: "Id of offer to activate."
+                transId:
+                  type: "string"
+                  description: "Unique transaction id that must allow a minimum of\
+                    \ 10 alphanumeric characters including dashes and dots. Preferebly\
+                    \ UUID format IETF RFC4122. Should be stored in BU's system for\
+                    \ tracking."
+                callbackUrl:
+                  type: "string"
+                  description: "To specify callback endpoint in case of async provisioning."
+        required: true
+      responses:
+        "200":
+          description: "A successful offer activation response."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/activateResponse"
+              example:
+                activationStatus: "OK"
+                activationTime: "2018-09-13T06:17:21+00:00"
+                confirmationCode: "tp-backend-unique-transactionid"
+        "400":
+          description: "Invalid request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /activationCallback/{operator}:
+    post:
+      description: "Activation callback of a activation request for a given offer\
+        \ for that specific user."
+      parameters:
+      - name: "operator"
+        in: "path"
+        required: true
+        style: "simple"
+        explode: false
+        schema:
+          type: "string"
+          enum:
+          - "gp"
+          - "tp"
+          - "digi"
+          - "dtac"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - "activationStatus"
+              - "transId"
+              type: "object"
+              properties:
+                transId:
+                  type: "string"
+                  description: "transId that corresponds with the original activation\
+                    \ request. Unique transaction id that must allow a minimum of\
+                    \ 10 alphanumeric characters including dashes and dots. Preferebly\
+                    \ UUID format IETF RFC4122."
+                channelId:
+                  type: "string"
+                  description: "Id that identifies the channel where the request comes\
+                    \ from. I.e. SMS/USSD/IVR/App/Web"
+                serviceProviderId:
+                  type: "string"
+                  description: "Id that identifies the service provider"
+                offerId:
+                  type: "string"
+                  description: "Id of offer/dataplan to activate."
+                activationStatus:
+                  type: "object"
+                  properties:
+                    status:
+                      type: "string"
+                      enum:
+                      - "OK"
+                      - "FAIL"
+                    errorMessage:
+                      $ref: "#/components/schemas/errorResponse"
+                  description: "errorMessage is required if status is FAIL."
+        required: true
+      responses:
+        "200":
+          description: "A successful offer activation response."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/callbackResponse"
+              example:
+                status: "OK"
+                message: "Callback received by Offer API"
+        "400":
+          description: "Invalid request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+              example:
+                errorType: "INVALID_TRANSID"
+                message: "Could not match transaction ID in our system"
+components:
+  schemas:
+    accountStatus:
+      required:
+      - "monetaryBalance"
+      - "pricePlan"
+      - "subscriptionType"
+      type: "object"
+      properties:
+        subscriptionType:
+          $ref: "#/components/schemas/subscriptionType"
+        pricePlan:
+          type: "string"
+          description: "Main account subscription, e.g. djuice"
+          example: "djuice"
+        monetaryBalance:
+          $ref: "#/components/schemas/money"
+        subscribedPlans:
+          $ref: "#/components/schemas/subscribedPlans"
+    subscribedPlans:
+      type: "array"
+      items:
+        $ref: "#/components/schemas/subscribedPlan"
+    subscribedPlan:
+      required:
+      - "appType"
+      - "balance"
+      - "expirationTime"
+      - "planId"
+      - "planName"
+      type: "object"
+      properties:
+        planId:
+          type: "string"
+          description: "Plan identifier unique product ID per operator"
+          example: "1234"
+        planName:
+          type: "string"
+          description: "Name of dataplan"
+          example: "3G weekly plan"
+        expirationTime:
+          type: "string"
+          description: "Date and time format ISO 8601."
+          format: "date-time"
+        appType:
+          type: "array"
+          description: "Application specific data plan. If not specified it will default\
+            \ to GENERIC."
+          items:
+            $ref: "#/components/schemas/application"
+        balance:
+          example:
+            quotaBytes: 3000000000
+            remainingBytes: 2500000000
+          oneOf:
+          - $ref: "#/components/schemas/byteBalance"
+          - $ref: "#/components/schemas/timeBalance"
+        overusagePolicy:
+          $ref: "#/components/schemas/overusagePolicy"
+        speedLimit:
+          type: "integer"
+          description: "Max transmission speed of this plan, in kbps."
+          example: 345
+        recurrence:
+          type: "object"
+          properties:
+            frequency:
+              type: "integer"
+              example: 7
+              enum:
+              - 1
+              - 3
+              - 5
+              - 7
+              - 14
+              - 30
+            resetDate:
+              type: "string"
+              description: "Time when the plan renews. Date and time format ISO 8601."
+              format: "date-time"
+          description: "Renewal policy for the given data plan. Units are days."
+        rollover:
+          description: "Rollover balance for the given data plan."
+          example:
+            quotaBytes: 3000000000
+            remainingBytes: 2500000000
+          oneOf:
+          - $ref: "#/components/schemas/byteBalance"
+          - $ref: "#/components/schemas/timeBalance"
+        sharedPlan:
+          type: "boolean"
+          description: "data plan sharing policy (e.g. family plan)."
+          example: true
+    subscriberState:
+      type: "string"
+      description: "GOOD_TO_GO (User has enough data to continue accessing services),\
+        \  NEED_OFFERS (User is low on data, but has monetary balance so offers are\
+        \ appropriate), NEED_TOPUP (User is low on data, and has too low monetary\
+        \ balance for offers to be in use. Needs to top up the monetary balance.)"
+      enum:
+      - "GOOD_TO_GO"
+      - "NEED_OFFERS"
+      - "NEED_LOANS"
+      - "NEED_TOPUP"
+    offersInfo:
+      required:
+      - "offers"
+      type: "object"
+      properties:
+        subscriberState:
+          $ref: "#/components/schemas/subscriberState"
+        offers:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/offerInfo"
+        upstreamTransId:
+          type: "string"
+          description: "Transaction ID generated by the BU."
+    offerInfo:
+      required:
+      - "cost"
+      - "duration"
+      - "fundSource"
+      - "id"
+      - "name"
+      - "quota"
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          description: "Plan identifier. Can be used to refer to the plan during upsells,\
+            \ etc."
+        name:
+          type: "string"
+          description: "Name of dataplan"
+        description:
+          type: "string"
+          description: "Extended plan description."
+        shortDescription:
+          type: "string"
+          description: "Short plan description."
+        fundSource:
+          $ref: "#/components/schemas/fundSource"
+        quota:
+          oneOf:
+          - $ref: "#/components/schemas/byteQuota"
+          - $ref: "#/components/schemas/timeQuota"
+        appType:
+          type: "array"
+          description: "Application specific data plan. If not specified it will default\
+            \ to GENERIC."
+          items:
+            $ref: "#/components/schemas/application"
+        overusagePolicy:
+          $ref: "#/components/schemas/overusagePolicy"
+        speedLimit:
+          type: "integer"
+          description: "Max transmission apeed of this plan, in kbps."
+        duration:
+          type: "integer"
+          description: "Number of seconds for which the plan is valid once the plan\
+            \ is activated."
+        cost:
+          $ref: "#/components/schemas/money"
+        recurrenceFrequency:
+          type: "object"
+          properties:
+            frequency:
+              type: "string"
+              description: "Renewal policy for the given data plan. If specified,\
+                \ means that data plan automatically renews with that frequency."
+              enum:
+              - "DAILY"
+              - "WEEKLY"
+              - "MONTHLY"
+    activateResponse:
+      required:
+      - "activationStatus"
+      type: "object"
+      properties:
+        activationStatus:
+          type: "object"
+          properties:
+            status:
+              type: "string"
+              enum:
+              - "OK"
+              - "FAIL"
+              - "PENDING"
+            errorMessage:
+              $ref: "#/components/schemas/errorResponse"
+          description: "errorMessage is required if status is FAIL."
+        activationTime:
+          type: "string"
+          description: "Date and time format ISO 8601."
+          format: "date-time"
+        confirmationCode:
+          type: "string"
+          description: "Unique transaction id returned from BU back-end."
+        fundSource:
+          $ref: "#/components/schemas/fundSource"
+    callbackResponse:
+      required:
+      - "activationStatus"
+      type: "object"
+      properties:
+        status:
+          type: "string"
+          enum:
+          - "OK"
+          - "FAIL"
+        message:
+          type: "string"
+          description: "Human readable message."
+    money:
+      required:
+      - "value"
+      type: "object"
+      properties:
+        currency:
+          type: "string"
+          description: "Currency code defined in ISO 4217"
+          example: "155"
+        value:
+          type: "number"
+          description: "Amount left in the specified currency."
+    overusagePolicy:
+      type: "string"
+      description: "Overusage policy describes the behaviour of the data plan once\
+        \ the user consumed it."
+      example: "THROTTLED"
+      enum:
+      - "THROTTLED"
+      - "BLOCKED"
+      - "PAY_AS_YOU_GO"
+    application:
+      type: "string"
+      example: "GENERIC, VIDEO, MUSIC"
+      enum:
+      - "GENERIC"
+      - "VIDEO"
+      - "MUSIC"
+      - "GAMING"
+      - "SOCIAL"
+      - "MESSAGING"
+    subscriptionType:
+      type: "string"
+      example: "PREPAID"
+      enum:
+      - "UNSPECIFIED"
+      - "PREPAID"
+      - "POSTPAID"
+    byteBalance:
+      type: "object"
+      properties:
+        quotaBytes:
+          type: "integer"
+          description: "Quota in bytes. int64 format."
+          example: 3000000000
+        remainingBytes:
+          type: "integer"
+          description: "Remaining quota balance in bytes. int64 format."
+          example: 2500000000
+      example:
+        quotaBytes: 3000000000
+        remainingBytes: 2500000000
+    timeBalance:
+      type: "object"
+      properties:
+        quotaMinutes:
+          type: "integer"
+          description: "Quota in minutes. int64 format."
+          example: 300
+        remainingMinutes:
+          type: "integer"
+          description: "Remaining quota balance in minutes. int64 format."
+          example: 238
+      example:
+        quotaMinutes: 300
+        remainingMinutes: 238
+    byteQuota:
+      type: "integer"
+      description: "Plan quota in bytes. int64 format."
+    timeQuota:
+      type: "integer"
+      description: "Plan quota in minutes. int64 format."
+    fundSource:
+      type: "string"
+      enum:
+      - "WALLET"
+      - "LOAN"
+    errorResponse:
+      required:
+      - "errorType"
+      type: "object"
+      properties:
+        errorType:
+          type: "string"
+          description: "Recognizable error type"
+          enum:
+          - "TIMEOUT"
+          - "PARSING_ERROR"
+          - "INTERNAL_ERROR"
+          - "UNKNOWN_SUBSCRIBER_ID"
+          - "INVALID_PRODUCT"
+          - "USER_BARRED"
+          - "CONGESTED"
+          - "PURCHASE_IN_PROGRESS"
+          - "PURCHASE_ALREADY_EXECUTED"
+          - "NOT_IMPLEMENTED"
+          - "INSUFFICIENT_FUNDS"
+          - "BAD_REQUEST"
+          - "CONFLICT"
+          - "FORBIDDEN"
+          - "INVALID_TRANSID"
+        message:
+          type: "string"
+          description: "Human-readable error message"
+      description: "Error response (content)"
+  securitySchemes:
+    OAuth2:
+      type: "oauth2"
+      flows:
+        authorizationCode:
+          authorizationUrl: "https://connect.telenordigital.com/oauth/tokeninfo"
+          tokenUrl: "http://connect.telenordigital.com/oauth/token"
+          scopes:
+            cco.dd.data-plan.gen.inquire: "Grants read access"
+            cco.dd.data-plan.gen.activate: "Grants write access"
