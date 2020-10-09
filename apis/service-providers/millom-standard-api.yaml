@@ -1,0 +1,361 @@
+---
+openapi: "3.0.0"
+info:
+  title: "Millom standard service provider API"
+  description: "This details Millom's standard API for service providers.  It allows\
+    \ an authorized service provider to retrieve (personalized) offers for a subscriber,\
+    \ and to activate those offers."
+  version: "1.0.0"
+servers:
+- url: "https://api.example.millom.com"
+security:
+- application:
+  - "cco.dd.data-plan.gen.inquire"
+  - "cco.dd.data-plan.gen.activate"
+paths:
+  /std/{serviceProvider}/{subscriberId}/upsellOffer:
+    get:
+      summary: "Get upsellOffer"
+      description: "Retrieve a list of offers for a subscriber"
+      parameters:
+      - name: "serviceProvider"
+        in: "path"
+        description: "Agreed service provider identifier to access the millom platform"
+        required: true
+        style: "simple"
+        explode: false
+        schema:
+          type: "string"
+      - name: "subscriberId"
+        in: "path"
+        description: "User identifier string. Can be MSISDN (default), or url-encoded\
+          \ CPID"
+        required: true
+        style: "simple"
+        explode: false
+        schema:
+          type: "string"
+      - name: "idType"
+        in: "query"
+        description: "Type of subscriber ID. MSISDN or CPID."
+        required: false
+        style: "form"
+        explode: true
+        schema:
+          type: "string"
+          enum:
+          - "MSISDN"
+          - "CPID"
+          default: "MSISDN"
+      - name: "language"
+        in: "header"
+        description: "Requested language. Millom will attempt to return strings (plan\
+          \ IDs, descriptions) in this language, otherwise default language (english)\
+          \ will be used."
+        required: false
+        style: "simple"
+        explode: false
+        schema:
+          type: "string"
+          default: "en"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OfferInfoResponse"
+        "400":
+          description: "Bad request (wrongly formatted payload or missing mandatory\
+            \ parameters)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: "Unauthorized (missing or unauthorized access token)"
+        "404":
+          description: "User not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: "Server Internal Error (Millom internal failure)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: "Bad gateway (upstream notification failed)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: "Capacity unavailable"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "504":
+          description: "Failure from upstream operator"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /std/{serviceProvider}/{subscriberId}/purchasePlan:
+    post:
+      summary: "Get upsellOffer"
+      description: "Retrieve a list of offers for a subscriber"
+      parameters:
+      - name: "serviceProvider"
+        in: "path"
+        description: "Agreed service provider identifier to access the millom platform"
+        required: true
+        style: "simple"
+        explode: false
+        schema:
+          type: "string"
+      - name: "subscriberId"
+        in: "path"
+        description: "User identifier string. Can be MSISDN (default), or url-encoded\
+          \ CPID"
+        required: true
+        style: "simple"
+        explode: false
+        schema:
+          type: "string"
+      - name: "idType"
+        in: "query"
+        description: "Type of subscriber ID. MSISDN or CPID."
+        required: false
+        style: "form"
+        explode: true
+        schema:
+          type: "string"
+          enum:
+          - "MSISDN"
+          - "CPID"
+          default: "MSISDN"
+      - name: "language"
+        in: "header"
+        description: "Requested language. Millom will attempt to return strings (plan\
+          \ IDs, descriptions) in this language, otherwise default language (english)\
+          \ will be used."
+        required: false
+        style: "simple"
+        explode: false
+        schema:
+          type: "string"
+          default: "en"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActivationRequest"
+        required: true
+      responses:
+        "200":
+          description: "OK - purchase completed"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActivationResponse"
+        "202":
+          description: "Queued. User is scheduled for notification"
+        "400":
+          description: "Bad request (wrongly formatted payload or missing mandatory\
+            \ parameters)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: "Unauthorized (missing or unauthorized access token)"
+        "402":
+          description: "Insufficient funds"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "User not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: "Purchase in progress, or already executed"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: "Server Internal Error (Millom internal failure)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: "Bad gateway (upstream notification failed)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: "Capacity unavailable"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "504":
+          description: "Failure from upstream operator"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      security: []
+components:
+  schemas:
+    OfferInfoResponse:
+      required:
+      - "resultCode"
+      type: "object"
+      properties:
+        resultCode:
+          type: "string"
+          description: "Aggregated status of user\n* ´1´ - Good to go. User has positive\
+            \ data balance and can use Internet for the service\n* ´2´ - Offers available.\
+            \ The user have no activated data plans or low balance, but have offers\
+            \ to purchase. Offers will be populated in the 'offers' array.\n* '3'\
+            \ - Need topup. No offers was found that user could purchase. The user\
+            \ needs to add funds to his/her account.\n"
+          enum:
+          - "1"
+          - "2"
+          - "3"
+        offers:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Offer"
+        cache:
+          type: "object"
+          properties:
+            ttl:
+              type: "number"
+              description: "The number of seconds this response is considered to remain\
+                \ valid. Clients may cache this response for this time."
+            cache:
+              type: "boolean"
+              description: "true if this offer was served from millom cache, or false\
+                \ if retrieved directly from operator."
+              default: false
+    Offer:
+      type: "object"
+      properties:
+        planId:
+          type: "string"
+          description: "Unique ID for this offered plan"
+        cost:
+          type: "string"
+          description: "Cost of this offer, as a quoted decimal number."
+          format: "currency"
+          example: "14"
+        costCurrency:
+          type: "string"
+          description: "ISO 4217 code for the currency of the cost."
+        type:
+          type: "string"
+          description: "Description of the type of dataplan this is."
+          example: "Data"
+        planDescription:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              language:
+                type: "string"
+                description: "What language the 'text' field is expressed as. BCP-47\
+                  \ language code"
+                example: "en-us"
+              text:
+                type: "string"
+                description: "Textual description of this offer, for humans to read."
+                example: "Super plan, 10 GB data valid for a week"
+        offerContext:
+          type: "string"
+          description: "random text string with offer cookie data. \\ If present,\
+            \ it must be provided in activation API."
+    ActivationRequest:
+      required:
+      - "planid"
+      - "transid"
+      type: "object"
+      properties:
+        transid:
+          type: "string"
+          description: "Unique transaction id that must allow a minimum of 10 alphanumeric\
+            \ characters including dashes and dots.  Preferrably UUID format IETF\
+            \ RFC4122.\n"
+        planid:
+          type: "string"
+          description: "Unique ID for the offer to activate.  Equal to planId in one\
+            \ of the offers returned in upsellOffer API.\n"
+        offercontext:
+          type: "string"
+          description: "offerContext from the selected Offer. If present, provide\
+            \ without modification"
+        fundSource:
+          type: "string"
+          description: "Identifies source of funds for this activation"
+          enum:
+          - "WALLET"
+          - "LOAN"
+          default: "WALLET"
+    ActivationResponse:
+      type: "object"
+      properties:
+        transid:
+          type: "string"
+          description: "Unique transaction id that must allow a minimum of 10 alphanumeric\
+            \ characters including dashes and dots.  Preferrably UUID format IETF\
+            \ RFC4122.\n"
+        status:
+          type: "string"
+          description: "Description of the transaction status"
+          enum:
+          - "completed"
+          - "processing"
+          - "failed"
+        fundSource:
+          type: "string"
+          description: "Identifies source of funds for this activation"
+          enum:
+          - "WALLET"
+          - "LOAN"
+          default: "WALLET"
+        transactionMessage:
+          type: "string"
+          description: "Textual message from upstream operator"
+    ErrorResponse:
+      required:
+      - "error"
+      type: "object"
+      properties:
+        error:
+          type: "string"
+          description: "Error cause description"
+        opcode:
+          type: "string"
+          description: "Incoming error from backend, if applicable"
+  securitySchemes:
+    application:
+      type: "oauth2"
+      flows:
+        clientCredentials:
+          tokenUrl: "http://example.com/oauth/token"
+          scopes:
+            cco.dd.data-plan.gen.inquire: "Allows querying user details"
+            cco.dd.data-plan.gen.activate: "Allows activating plans on behalf of the\
+              \ user"

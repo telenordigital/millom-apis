@@ -1,0 +1,331 @@
+---
+openapi: "3.0.0"
+info:
+  title: "Millom's Notification API"
+  description: "This defines the Notification API in OfferAPI, where operators are\
+    \ allowed to notify OfferAPI on important changes in state of a subscriber. Supporting\
+    \ notifications that a single user balance (plan time, -volume, or monetary balance)\
+    \ is empty or at a triggering treshold, or one of a user's plan is (almost) consumed."
+  version: "1.2"
+servers:
+- url: "https://api.ddt.telenor.io/notify"
+security:
+- application:
+  - "cco.dd.notify.dtac.single"
+paths:
+  /{operator}/v1/single:
+    post:
+      description: "Notify event on an individual subscriber"
+      parameters:
+      - name: "operator"
+        in: "path"
+        description: "operator code for notifying operator"
+        required: true
+        style: "simple"
+        explode: false
+        schema:
+          type: "string"
+      - name: "idValue"
+        in: "query"
+        description: "The user identifier string."
+        required: true
+        style: "form"
+        explode: true
+        schema:
+          type: "string"
+      - name: "idType"
+        in: "query"
+        description: "The type of the userId in idValue. Can be either MSISDN or CPID"
+        required: true
+        style: "form"
+        explode: true
+        schema:
+          type: "string"
+          enum:
+          - "MSISDN"
+          - "CPID"
+      - name: "override"
+        in: "query"
+        description: "If present and true, notification quotas will not be checked\
+          \ before notifying to destination"
+        required: false
+        style: "form"
+        explode: true
+        schema:
+          type: "boolean"
+      requestBody:
+        description: "info about the notification to send"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NotifyRequest"
+            examples:
+              Pack near consumption:
+                description: "A user's plan is running low on data, about to be consumed\
+                  \ (~10 kB remaining)"
+                value:
+                  transactionId: "a9d37c79-1760-4008,"
+                  type: "pack-near-consumption,"
+                  messages:
+                    language: "en,"
+                    message: "Internet onetime (Volume) is almost used up. To renew\
+                      \ or find other best-valued packages, please go to promotion"
+                  planDetails:
+                    planId: "123456,"
+                    balance: "10345,"
+                    quota: "209715200,"
+                    planName:
+                      language: "en,"
+                      name: "Internet onetime (Volume)"
+              Pack expired:
+                value:
+                  transactionId: "123456,"
+                  type: "pack-expired,"
+                  planDetails:
+                    planId: "1234567,"
+                    balance: "102400000,"
+                    quota: "5012000000,"
+                    expiry: "2019-02-28T23:59:59.723+05:00"
+              Monetary topup:
+                description: "A user has topped up his/her monetary account with 5\
+                  \ Burmese Kyats"
+                value:
+                  transactionId: "2,"
+                  type: "monetary-reload,"
+                  monetaryBalance:
+                    totalBalance: "105.20,"
+                    deltaBalance: "5.00,"
+                    currency: "MMK"
+              Pay-as-you-go entered:
+                description: "Notification sent to signal that the subscriber has\
+                  \ entered pay-as-you-go state. deltaBalance == \"0.00\" signifies\
+                  \ that subscriber has just entered state. Note that deltaBalance\
+                  \ is required, whilst totalBalance is NOT required."
+                value:
+                  transactionId: "2,"
+                  type: "pay-as-you-go,"
+                  monetaryBalance:
+                    totalBalance: "105.20,"
+                    deltaBalance: "0.00,"
+                    currency: "MMK"
+              Pay-as-you-go money deducted:
+                description: "Notification sent to signal that the subscriber is in\
+                  \ pay-as-you-go state and money has been deducted. Note that monetary\
+                  \ balance element is present. deltaBalance == -10.00\" signifies\
+                  \ that subscriber has spent 10.00 since entering pay-as-you-go state.\
+                  \ Note that deltaBalance is required, whilst totalBalance is NOT\
+                  \ required."
+                value:
+                  transactionId: "2,"
+                  type: "pay-as-you-go,"
+                  monetaryBalance:
+                    totalBalance: "95.20,"
+                    deltaBalance: "-10.00,"
+                    currency: "MMK"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+        "202":
+          description: "Queued. User is scheduled for notification"
+        "400":
+          description: "Bad request (wrongly formatted payload or missing mandatory parameters)"
+        "401":
+          description: "Unauthorized (missing or unauthorized access token)"
+        "403":
+          description: "Forbidden (user has not given consent to notifications)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "User record not found (bad userId, or user is not known to OfferAPI)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: "Bad userID (Not able to decode CPID, or flow does not support\
+            \ this type of user ID)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: "Too many requests (notification quota exceeded for this user)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: "Server Internal Error (OfferAPI internal failure)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: "Bad gateway (upstream notification failed)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    NotifyRequest:
+      required:
+      - "transactionId"
+      - "type"
+      type: "object"
+      properties:
+        transactionId:
+          maxLength: 128
+          minLength: 3
+          type: "string"
+          description: "Operator-unique transaction ID for this notification. Duplicated\
+            \ transactionIds may be rejected. Free alphanumeric string of max 128\
+            \ characters, we recommend a UUID."
+          example: "a9d37c79-1760-4008-a468-c42e38a5c90e"
+        type:
+          type: "string"
+          description: >
+            Describes the state of the subscriber (reason for notification)
+            * `low-data` - User is out of data on all packs
+            * `out-of-data` - User is running low on data on all packs
+            * `pay-as-you-go` - User has no data packs provisioned and is paying per MB consumed
+            * `pack-near-consumption` - One of the users' packs are soon being consumed
+            * `pack-consumed` - One of the users' packs have been consumed
+            * `pack-expired` - One of the user's pack has expired. Expiry date and time should be conveyed in planDetails.expiryTime
+            * `pack-near-expiry` - One of the user's packs is about to expire. Expiry date and time should be conveyed in planDetail.expiryTime
+            * `low-monetary-balance` - The user's monetary balance is low.
+            * `monetary-reload` - The user just topped up his monetary balance.
+          example: "out-of-data"
+          enum:
+          - "low-data"
+          - "out-of-data"
+          - "pay-as-you-go"
+          - "pack-near-consumption"
+          - "pack-consumed"
+          - "pack-expired"
+          - "pack-near-expiry"
+          - "low-monetary-balance"
+          - "monetary-reload"
+        messages:
+          type: "array"
+          description: "Notification message in multiple languages"
+          items:
+            type: "object"
+            properties:
+              language:
+                type: "string"
+                description: "ISO 639-1 code of language used in next field, message"
+                example: "en"
+              message:
+                type: "string"
+                description: "Unicode"
+                example: "you are running out of data"
+        planDetails:
+          required:
+          - "planId"
+          type: "object"
+          properties:
+            planId:
+              type: "string"
+              description: "Uniquely identifies the planID of the user's plan (almost)\
+                \ consumed."
+            balance:
+              type: "number"
+              description: "Current available data balance, in bytes, of plan alerted\
+                \ about"
+            quota:
+              type: "number"
+              description: "Initial data balance of plan referred to, in bytes."
+            planName:
+              type: "array"
+              description: "Name of the plan referred to (in multiple languages)"
+              items:
+                type: "object"
+                properties:
+                  language:
+                    type: "string"
+                    description: "ISO 639-1 code of language used in next field, message"
+                    example: "en"
+                  name:
+                    type: "string"
+                    description: "Unicode"
+                    example: "Super plan #1"
+            expiry:
+              type: "string"
+              description: "RFC 3339 formatted date and time when pack will or did\
+                \ expire."
+              format: "date-time"
+              example: "2019-01-01T00:00:00Z"
+          description: "Additional data about dataplans being consumed. Should be\
+            \ set if type is plan-consumed or plan-near-consumption"
+        subscriptionType:
+          type: "string"
+          description: "Enum object. Whether user has a prepaid or postpaid subscription"
+          enum:
+          - "prepaid"
+          - "postpaid"
+        overUsagePolicy:
+          type: "string"
+          description: "The action taken on the subscriber's data connection once\
+            \ the last pack is consumed or expired. * `throttled` - users internet\
+            \ access will be reduced in bandwidth * `pay-as-you-go` - The user will\
+            \ be billed per volume unit (MB) consumed * `blocked` - The user's data\
+            \ connection will be blocked\n"
+          enum:
+          - "throttled"
+          - "pay-as-you-go"
+          - "blocked"
+        monetaryBalance:
+          required:
+          - "currencyCode"
+          type: "object"
+          properties:
+            totalBalance:
+              type: "number"
+              description: "Subscriber's current total monetary balance. Meaningful\
+                \ on prepaid accounts."
+              format: "decimal"
+            deltaBalance:
+              type: "number"
+              description: "Recent change in monetary balance (positive - topup, or\
+                \ negative - consumption) related to this event. Should be present\
+                \ if event type is low-monetary-balance or monetary-reload. May be\
+                \ present on others."
+              format: "decimal"
+            currency:
+              type: "string"
+              description: "ISO 4217 formatted currency code, applies to all balances."
+              format: "currency"
+          description: "Holds details about a subscriber's monetary balance."
+    ErrorResponse:
+      required:
+      - "errorType"
+      type: "object"
+      properties:
+        errorType:
+          type: "string"
+          description: "Recognizable error type"
+          enum:
+          - "NO_CPID"
+          - "QUOTA_EXCEEDED"
+          - "NOTIFCIATION_FAILED_TO_RECEIVER"
+          - "NO_CONSENT"
+          - "INTERNAL_ERROR"
+        description:
+          type: "string"
+          description: "Human-readable error description"
+          example: "Operation failed because user hasn't given consent to this type\
+            \ of notification"
+      description: "Error response (content)"
+  securitySchemes:
+    application:
+      type: "oauth2"
+      flows:
+        clientCredentials:
+          tokenUrl: "https://connect.telenordigital.com/oauth/tokeninfo"
+          scopes:
+            cco.dd.notify.dtac.single: "allows notifying of individual subscribers"
+            cco.dd.notify.dtac.bulk: "allows running bulk campaigns"
