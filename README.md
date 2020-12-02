@@ -29,10 +29,11 @@ Millom's APIs will generally reference end-user by two keys, the idValue and idT
 
 ---
 ## APIs
-Millom has APIs for service providers and telco operators.
+Millom's downstream APIs connect to MNO's digital sales backend to retrive and update status, offer and purchase information. Millom's upstream APIs connect to Service Providers and expose status, offers and purchase flow to end-customers.
+In addition Millom provides a set of Managements API's that allow MNOs to look-up purchase stauts, customer insight analytics, etc.
 
-| Service Providers | Operators |
-| ------ | ----------- |
-| [Upsell API](apis/service-providers) | [Operator backend integration](apis/operators/backend) | 
-| | [Notification API](apis/operators/notification) |
-| | [Purchase callback API](apis/operators/purchase-callback) |
+| Exposing info to end-users | connecting and updating MNO's subscriber info | Service Management |
+| ------ | ----------- | ------ |
+| [Upsell API](apis/service-providers) | [End-user Account integration](apis/operators/backend) | Purchase look-up (TBA)|
+| | [Notification API](apis/operators/notification) | Data Feedback Loop (TBA) |
+| | [Purchase callback API](apis/operators/purchase-callback) | Settlements Reports (TBA) |
