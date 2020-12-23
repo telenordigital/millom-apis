@@ -490,6 +490,16 @@ components:
           type: array
           items: 
             $ref: "#/components/schemas/MultilingualText"
+        quota:
+          description: The initial size of this plan, in bytes, minutes etc
+          type: object
+          properties:
+            unit:
+              type: string
+              enum: ["bytes", "data-minutes", "voice-minutes", "sms"]
+            quota: 
+              type: number
+              example: 1073741824
         offerContext:
           type: string
           description: random text string with offer cookie data. \
