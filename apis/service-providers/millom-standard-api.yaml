@@ -426,6 +426,9 @@ components:
               quota: 
                 type: number
                 example: 1073741824
+                description: >
+                  The value of the initial size, in the given unit.
+                  Unlimited plans are expressed with a byte quota value of 2^63 - 1 (9223372036854775807).
               remaining:
                 type: number
                 example: 100
@@ -503,6 +506,9 @@ components:
               quota:
                 type: number
                 example: 1073741824
+                description: >
+                  The value of the initial size, in the given unit.
+                  Unlimited plans are expressed with a byte quota value of 2^63 - 1 (9223372036854775807).
         offerContext:
           type: string
           description: random text string with offer cookie data. \
