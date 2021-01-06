@@ -6,8 +6,8 @@ info:
   title: Millom standard service provider API
   description: >-
     This details Millom's standard API for service providers. 
-    It allows an authorized service provider to retrieve (personalized) offers for a subscriber,
-    and to activate those offers.
+    It allows an authorized service provider to query a subscribers' current subscribed products and balances,
+    retrieve (personalized) offers for a subscriber, and to activate those offers.
 security:
   - application:
       - cco.dd.data-plan.gen.inquire
