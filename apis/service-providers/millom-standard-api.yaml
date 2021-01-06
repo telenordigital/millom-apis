@@ -506,7 +506,7 @@ components:
         offerContext:
           type: string
           description: random text string with offer cookie data. \
-            If present, it must be provided in activation API.
+            If present, it must be provided in activation request.
             
     ActivationRequest:
       type: object
