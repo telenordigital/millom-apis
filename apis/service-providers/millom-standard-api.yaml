@@ -489,6 +489,10 @@ components:
           type: string
           description: Description of the type of dataplan this is.
           example: "Data"
+        planName:
+          type: array
+          items:
+            $ref: "#/components/schemas/MultilingualText"
         planDescription: 
           type: array
           items: 
