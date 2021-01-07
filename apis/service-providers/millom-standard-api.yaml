@@ -242,8 +242,8 @@ paths:
                 
   /std/{serviceProvider}/{subscriberId}/purchasePlan:
     post:
-      summary: Get upsellOffer
-      description: Retrieve a list of offers for a subscriber
+      summary: Purchase plan
+      description: Activate the given offer for a subscriber. Payment will be deducted from the fund source.
       parameters:
       - name: serviceProvider
         required: true
