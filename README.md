@@ -41,7 +41,8 @@ In addition Millom provides a set of Managements API's that allow MNOs to look-u
 ---
 ## Sandbox API
 Millom provides a Sandbox API to enable easy testing of the Millom upstream API.
-Authentication is disabled on the Sandbox API (for simplicity), but production access requires OAuth 2.0 Client Credentials.
+---
+Note that authentication is disabled on the Sandbox API (for simplicity), but production access requires OAuth 2.0 Client Credentials.
 
 A Postman collection, with samples of the requests, is available here:
 
