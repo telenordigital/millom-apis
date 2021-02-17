@@ -29,8 +29,10 @@ Millom's APIs will generally reference end-user by two keys, the idValue and idT
 
 ---
 ## APIs
-Millom's downstream APIs connect to MNO's digital sales backend to retrieve and update status, offer and purchase information. Millom's upstream APIs connect to Service Providers and expose status, offers and purchase flow to end-customers.
-In addition Millom provides a set of Managements API's that allow MNOs to look-up purchase status, customer insight analytics, etc.
+Millom's downstream APIs connect to MNO's digital sales backend to retrieve and update status, offer and purchase information. 
+Millom's upstream APIs connect to Service Providers and expose status, offers and purchase flow to end-customers.
+In addition Millom provides a set of Managements API's that allow MNOs to look-up purchase status, 
+customer insight analytics, etc.
 
 | Exposing info to end-users | connecting and updating MNO's subscriber info | Service Management |
 | ------ | ----------- | ------ |
@@ -40,10 +42,14 @@ In addition Millom provides a set of Managements API's that allow MNOs to look-u
 
 ---
 ## Sandbox API
-Millom provides a Sandbox API to enable easy testing of the Millom upstream API.<br/><br/>
+The Millom Sandbox API provides a smooth and fast introduction to the Millom upstream API. 
+It includes a Postman collection with samples of the flows specified in the Millom upstream API.
+The collection flows utilises one of our backends, running the same code as our Millom Production services,
+with mocked MNO responses.
+<br/><br/>
 Note that authentication is disabled on the Sandbox API (for simplicity), but production access requires OAuth 2.0 Client Credentials.
 
-A Postman collection with samples is available, see button below. You might want to create a new Postman Workspace to be used for this import before you hit the button.
+You might want to create a new Postman Workspace to be used for this import before you hit the button.
 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://god.postman.co/run-collection/983e953bbad95bc8ccdd#?env%5BStandardGenericsDevelopment%5D=W3sia2V5IjoiYmFzZVVybCIsInZhbHVlIjoiaHR0cHM6Ly9hcGkuZGR0LmRldmVsb3BtZW50LnRlbGVub3IuaW8iLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InNlcnZpY2VQcm92aWRlciIsInZhbHVlIjoidGVzdHNlcnZpY2Vwcm92aWRlciIsImVuYWJsZWQiOnRydWV9LHsia2V5Ijoic2lkSGF2ZUxvYW5OZWVkVG9wdXAiLCJ2YWx1ZSI6IjkyNDU0MjYxMDAwMCIsImVuYWJsZWQiOnRydWV9LHsia2V5Ijoic2lkSGF2ZU1vbmV5R29vZFRvR28iLCJ2YWx1ZSI6IjkyNDU0MjYxMDAwMyIsImVuYWJsZWQiOnRydWV9XQ==)
 
