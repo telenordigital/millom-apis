@@ -37,3 +37,11 @@ In addition Millom provides a set of Managements API's that allow MNOs to look-u
 | [Upsell API](apis/service-providers) | [End-user Account integration](apis/operators/backend) | Purchase look-up (TBA)|
 | | [Notification API](apis/operators/notification) | Data Feedback Loop (TBA) |
 | | [Purchase callback API](apis/operators/purchase-callback) | Settlements Reports (TBA) |
+
+---
+## Sandbox API
+Millom provides a Sandbox API to enable easy testing of the Millom upstream API.
+Authentication is disabled on the Sandbox API (for simplicity), but production access requires OAuth 2.0 Client Credentials.
+
+A Postman collection, with samples of the requests, is available here:
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://god.postman.co/run-collection/952a73b490a23385875e#?env%5BStandardGenericsDevelopment%5D=W3sia2V5IjoiYmFzZVVybCIsInZhbHVlIjoiaHR0cHM6Ly9hcGkuZGR0LmRldmVsb3BtZW50LnRlbGVub3IuaW8iLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InNldmljZVByb3ZpZGVyIiwidmFsdWUiOiJ0ZXN0U2VydmljZVByb3ZpZGVyIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJzaWRIYXZlTG9hbk5lZWRUb3B1cCIsInZhbHVlIjoiOTI0NTQyNjEwMDAwIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJzaWRIYXZlTW9uZXlHb29kVG9HbyIsInZhbHVlIjoiOTI0NTQyNjEwMDAzIiwiZW5hYmxlZCI6dHJ1ZX1d)
