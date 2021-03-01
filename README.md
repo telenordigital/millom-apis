@@ -51,7 +51,7 @@ Note that authentication is disabled on the Sandbox API (for simplicity), but pr
 
 ### Get the Documentation
 
-The Sandbox documentation is available as pdf here: [MillomSandbox](sandbox/TheMillomSandbox-v1.1.pdf)
+The Sandbox documentation is available here: [Millom Sandbox Collection](sandbox/SandboxPostmanCollectionDoc.md)
 
 ### Get the Postman collection
 You might want to create a new Postman Workspace to be used for this import before you hit the button.
