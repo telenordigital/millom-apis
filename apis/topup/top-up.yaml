@@ -1,0 +1,111 @@
+openapi: 3.0.0
+info:
+  title: Topup API
+  description: Topup API allowing business partners (“TUR Partners”) to offer their user base (“Requestors”) a service to request a Topup from their loved ones abroad (“Donors”).
+  version: 1.0.0
+servers:
+  - url: https://topup.example.millom.com/v1
+paths:
+  /ref:
+    post:
+      tags:
+        - "ref"
+      summary: "Provide a reference number of a topup operation, triggers webview that would allow to enter the topup details"
+      description: "Called by external parties, redirections or FB Mobile Centre to initate a topup"
+      operationId: "provideReference"
+      requestBody:
+        description: "Mandatory - Partner Reference number for the Topup Request"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reference'
+        required: true
+      responses:
+        "405":
+          description: "Invalid input"
+  /topup:
+    post:
+      tags:
+        - "topup"
+      summary: "Request a topup"
+      description: "Called by our WebView when the user has entered the form data required for the topup request"
+      operationId: "requestTopup"
+      requestBody:
+        description: "Mandatory - Partner Reference number for the Topup Request"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Topup'
+        required: true
+      responses:
+        "405":
+          description: "Invalid input"
+components:
+  schemas:
+    Reference:
+      type: "object"
+      required:
+        - "externalRef"
+      properties:
+        externalRef:
+          type: "string"
+          example: "9792f991-d400-49bc-958f-69634751fb4e"
+        requester:
+          type: "object"
+          required:
+            - "subscriberId"
+          properties:
+            subscriberId:
+              type: "string"
+              example: "+6591827364"
+            name:
+              type: "string"
+              example: "John Doe"
+    Topup:
+      type: "object"
+      required:
+        - "external_ref"
+        - "requester"
+        - "donor"
+      properties:
+        externalRef:
+          type: "string"
+          example: "9792f991-d400-49bc-958f-69634751fb4e"
+        requester:
+          type: "object"
+          required:
+            - "subscriberId"
+          properties:
+            subscriberId:
+              type: "string"
+              example: "+6591827364"
+            name:
+              type: "string"
+              example: "John Doe"
+        donor:
+          type: "object"
+          required:
+            - "subscriberId"
+          properties:
+            subscriberId:
+              type: "string"
+              example: "+6582736491"
+            name:
+              type: "string"
+              example: "Jane Doe"
+
+
+# to be changed
+#security:
+#  - topup:
+#      - cco.dd.data-plan.gen.inquire
+#      - cco.dd.data-plan.gen.activate
+#  securitySchemes:
+#    application:
+#      type: oauth2
+#      flows:
+#        clientCredentials:
+#          tokenUrl: 'http://example.com/oauth/token'
+#          scopes:
+#            cco.dd.data-plan.gen.inquire: Allows querying user details
+#            cco.dd.data-plan.gen.activate: Allows activating plans on behalf of the user
