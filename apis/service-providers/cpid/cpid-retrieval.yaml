@@ -43,7 +43,7 @@ paths:
                   ttlSeconds:
                     type: integer
                     description: The time to live of this CPID, in seconds from received time. A new CPID must be obtained before this time.
-                    example: 3600
+                    example: 2592000
         default:
            description: failed
            content:
