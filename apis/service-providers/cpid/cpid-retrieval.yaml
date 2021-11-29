@@ -1,0 +1,71 @@
+openapi: 3.0.0
+servers:
+  - url: http://cpid.example.millom.com
+info:
+  version: 1.0.0
+  title: Millom CPID generation API
+  description: >-
+    This details Millom's API for CPID generation, an optional prerequisite for calling the Millom APIs.
+    The requirement is agreed with Millom depending on privacy requirements and data processing agreements.
+    CPID is an acronym for 'Carrier Plan IDentifier' - an anonymized user key for a specific user.
+    The API allows apps to obtain this CPID without seeing personal identifiers (eg MSISDNs)
+    This CPID can be used instead of MSISDNs on the Millom upsell API.
+    The host to obtain CPID may vary per operator, as some legislations require this host deployed in the carriers network.
+    CPID API can only be called from an operator's packet network.
+    From outside the supported operator networks, it will provide an error response.
+    The API uses cleartext http, because many implementations rely on header enrichment from the packet network.
+
+paths:
+  /cpid:
+    get:
+      summary: Get CPID
+      description: Retrieve a carrier plan identifier for the subscription owner attached to current IP address
+      parameters:
+        - in: query
+          name: app
+          required: true
+          description: Agreed service provider identifier to access the millom platform
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cpid:
+                    type: string
+                    description: The CPID token to use on Millom APIs
+                  ttlSeconds:
+                    type: integer
+                    description: The time to live of this CPID, in seconds from received time. A new CPID must be obtained before this time.
+        default:
+           description: failed
+           content:
+             application/json:
+               schema:
+                type: object
+                properties:
+                  errorMessage:
+                    type: string
+                    description: Human readable description of the failure
+                  cause:
+                    type: string
+                    enum:
+                      - BAD_REQUEST
+                      - FORBIDDEN
+                      - UNSUPPORTED_OPERATOR
+                      - UNKNOWN_SUBSCRIBER_ID
+                      - USER_BARRED
+                      - INTERNAL_ERROR
+                    description: >
+                      Parseable cause of the error
+                      * `BAD_REQUEST`- Malformed request (malformed url or missing/malformed 'app' parameter, or unexpected user identifier header)
+                      * `FORBIDDEN` - Client not in operator network (IP not matched to a registered operator)
+                      * `UNSUPPORTED_OPERATOR`- Unknown operator.
+                      * `UNKNOWN_SUBSCRIBER_ID`- Unknown subscriber (eg service excluded for operator's MVNO subscribers)
+                      * `USER_BARRED` - User not allowed to use service
+                      * `INTERNAL_ERROR` - An unexpected software error
+
