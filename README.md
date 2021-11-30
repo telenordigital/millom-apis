@@ -37,7 +37,7 @@ customer insight analytics, etc.
 | Exposing info to end-users | connecting and updating MNO's subscriber info | Service Management |
 | ------ | ----------- | ------ |
 | [Upsell API](apis/service-providers) | [End-user Account integration](apis/operators/backend) | Purchase look-up (TBA)|
-| | [Notification API](apis/operators/notification) | Data Feedback Loop (TBA) |
+| [Generate CPID](apis/service-providers/cpid) | [Notification API](apis/operators/notification) | Data Feedback Loop (TBA) |
 | | [Purchase callback API](apis/operators/purchase-callback) | Settlements Reports (TBA) |
 
 ---
