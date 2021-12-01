@@ -8,15 +8,15 @@ info:
     This details Millom's standard API for service providers. 
     It allows an authorized service provider to query a subscribers' current subscribed products and balances,
     retrieve (personalized) offers for a subscriber, and to activate those offers.
-security:
-  - application:
-      - cco.dd.data-plan.gen.inquire
-      - cco.dd.data-plan.gen.activate
+
 paths:
   /std/{serviceProvider}/{subscriberId}/accountInfo:
     get:
       summary: Get account information
       description: Retrieve a subscriber's account details, eg post/prepaid user and monetary balance
+      security:
+        - application:
+            - cco.dd.data-plan.gen.inquire
       parameters:
       - name: serviceProvider
         required: true
@@ -56,6 +56,9 @@ paths:
     get:
       summary: Get telco balance
       description: Retrieve a subscriber's currently subscribed plans with details
+      security:
+        - application:
+            - cco.dd.data-plan.gen.inquire
       parameters:
       - name: serviceProvider
         required: true
@@ -102,6 +105,9 @@ paths:
     get:
       summary: Get upsellOffer
       description: Retrieve a list of offers for a subscriber
+      security:
+        - application:
+            - cco.dd.data-plan.gen.inquire
       parameters:
       - name: serviceProvider
         required: true
@@ -148,6 +154,9 @@ paths:
     post:
       summary: Purchase plan
       description: Activate the given offer for a subscriber. Payment will be deducted from the fund source.
+      security:
+        - application:
+            - cco.dd.data-plan.gen.activate
       parameters:
       - name: serviceProvider
         required: true
@@ -182,7 +191,6 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/ActivationRequest"
-      security: []
       responses:
         "200":
           description: "OK - purchase completed"
@@ -208,6 +216,9 @@ paths:
       summary: Register userkey for receiving notifications
       description: Registers a userkey (cpid) as consented and accepting sending subscription details
         as needed for providing certain notification on subscription events
+      security:
+        - application:
+            - cco.dd.data-plan.gen.register
       parameters:
         - name: serviceProvider
           required: true
@@ -253,7 +264,6 @@ paths:
                     $ref: "#/components/schemas/NotificationType"
                   description: "A list of notification types user accepts receiving"
 
-      security: [ ]
       responses:
         "200":
           description: "OK - notification accepted and queued"
@@ -578,7 +588,9 @@ components:
       type: oauth2
       flows:
         clientCredentials:
-          tokenUrl: 'http://example.com/oauth/token'
+          tokenUrl: 'https://connect.staging.telenordigital.com'
           scopes:
             cco.dd.data-plan.gen.inquire: Allows querying user details
             cco.dd.data-plan.gen.activate: Allows activating plans on behalf of the user
+            cco.dd.data-plan.gen.register: Allows registering a userkey for notifications
+            cco.dd.data-plan.gen.webview: Allows retrieving link to a web page obtaining and activating offers
