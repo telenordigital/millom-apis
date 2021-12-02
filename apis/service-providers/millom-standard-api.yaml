@@ -545,43 +545,20 @@ components:
       type: object
       required: [cause]
       properties:
-        message:
+        errorMessage:
           description: human readable error description
           type: string
         cause:
           description: Error class
           type: string
           enum:
+            - ERROR_CAUSE_UNSPECIFIED
+            - INVALID_NUMBER
             - BAD_REQUEST
-            - PARSING_ERROR
-            - FORBIDDEN
-            - CONFLICT
-            - BAD_CPID
-            - BAD_MSISDN
-            - USER_BARRED
-            - ROAMING
-            - CONGESTED
-            - BE_THROTTLED
-            - OPERATOR_THROTTLED
-            - INVALID_PRODUCT
-            - UNSUPPORTED_OPERATOR
-            - UNKNOWN_SUBSCRIBER_ID
-            - PURCHASE_IN_PROGRESS
-            - PURCHASE_ALREADY_EXECUTED
-            - INSUFFICIENT_FUNDS
-            - FAILURE_IN_BU
-            - CONNECTION_TROUBLE
-            - TIMEOUT
-            - DISABLED
-            - NOT_IMPLEMENTED
-            - KEY_NOT_FOUND
-            - NO_CONSENT
-            - PIN_ENTRY_ERROR
-            - SHUTTING_DOWN
-            - INTERNAL_ERROR
-        opcode:
-          type: string
-          description: Incoming error from backend, if applicable
+            - USER_ROAMING
+            - USER_OPT_OUT
+            - TOO_MANY_REQUESTS
+            - SERVICE_UNAVAILABLE
 
   securitySchemes:
     application:
