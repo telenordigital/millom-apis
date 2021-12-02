@@ -8,15 +8,15 @@ info:
     This details Millom's standard API for service providers. 
     It allows an authorized service provider to query a subscribers' current subscribed products and balances,
     retrieve (personalized) offers for a subscriber, and to activate those offers.
-security:
-  - application:
-      - cco.dd.data-plan.gen.inquire
-      - cco.dd.data-plan.gen.activate
+
 paths:
   /std/{serviceProvider}/{subscriberId}/accountInfo:
     get:
       summary: Get account information
       description: Retrieve a subscriber's account details, eg post/prepaid user and monetary balance
+      security:
+        - application:
+            - cco.dd.data-plan.gen.inquire
       parameters:
       - name: serviceProvider
         required: true
@@ -45,49 +45,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AccountInfoResponse"
-        "400":
-          description: "Bad request (wrongly formatted payload or missing mandatory parameters)"
+        default:
+          description: Error response
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "401":
-          description: "Unauthorized (missing or unauthorized access token)"
-        "404":
-          description: "User not found"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "500":
-          description: "Server Internal Error (Millom internal failure)"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "502":
-          description: "Bad gateway (upstream notification failed)"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "503":
-          description: "Capacity unavailable"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "504":
-          description: Failure from upstream operator
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/ErrorDocument"
                 
   /std/{serviceProvider}/{subscriberId}/balance:
     get:
       summary: Get telco balance
       description: Retrieve a subscriber's currently subscribed plans with details
+      security:
+        - application:
+            - cco.dd.data-plan.gen.inquire
       parameters:
       - name: serviceProvider
         required: true
@@ -123,49 +94,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BalanceResponse"
-        "400":
-          description: "Bad request (wrongly formatted payload or missing mandatory parameters)"
+        default:
+          description: Error response
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "401":
-          description: "Unauthorized (missing or unauthorized access token)"
-        "404":
-          description: "User not found"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "500":
-          description: "Server Internal Error (Millom internal failure)"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "502":
-          description: "Bad gateway (upstream notification failed)"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "503":
-          description: "Capacity unavailable"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "504":
-          description: Failure from upstream operator
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/ErrorDocument"
                 
   /std/{serviceProvider}/{subscriberId}/upsellOffer:
     get:
       summary: Get upsellOffer
       description: Retrieve a list of offers for a subscriber
+      security:
+        - application:
+            - cco.dd.data-plan.gen.inquire
       parameters:
       - name: serviceProvider
         required: true
@@ -201,49 +143,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/OfferInfoResponse"
-        "400":
-          description: "Bad request (wrongly formatted payload or missing mandatory parameters)"
+        default:
+          description: Error response
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "401":
-          description: "Unauthorized (missing or unauthorized access token)"
-        "404":
-          description: "User not found"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "500":
-          description: "Server Internal Error (Millom internal failure)"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "502":
-          description: "Bad gateway (upstream notification failed)"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "503":
-          description: "Capacity unavailable"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "504":
-          description: Failure from upstream operator
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/ErrorDocument"
                 
   /std/{serviceProvider}/{subscriberId}/purchasePlan:
     post:
       summary: Purchase plan
       description: Activate the given offer for a subscriber. Payment will be deducted from the fund source.
+      security:
+        - application:
+            - cco.dd.data-plan.gen.activate
       parameters:
       - name: serviceProvider
         required: true
@@ -278,7 +191,6 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/ActivationRequest"
-      security: []
       responses:
         "200":
           description: "OK - purchase completed"
@@ -287,57 +199,82 @@ paths:
               schema:
                 $ref: "#/components/schemas/ActivationResponse"
         "202":
-          description: "Queued. User is scheduled for notification"
-        "400":
-          description: "Bad request (wrongly formatted payload or missing mandatory parameters)"
+          description: "Queued. Activation is being processed and callback will be sent on completion"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "401":
-          description: "Unauthorized (missing or unauthorized access token)"
-        "402":
-          description: "Insufficient funds"
+                $ref: "#/components/schemas/ActivationResponse"
+        default:
+          description: Error response
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "404":
-          description: "User not found"
+                $ref: "#/components/schemas/ErrorDocument"
+
+  /std/{serviceProvider}/{subscriberId}/register:
+    post:
+      summary: Register userkey for receiving notifications
+      description: Registers a userkey (cpid) as consented and accepting sending subscription details
+        as needed for providing certain notification on subscription events
+      security:
+        - application:
+            - cco.dd.data-plan.gen.register
+      parameters:
+        - name: serviceProvider
+          required: true
+          in: path
+          description: Agreed service provider identifier to access the millom platform
+          schema:
+            type: string
+        - name: subscriberId
+          required: true
+          in: path
+          description: User identifier string. Can be MSISDN (default), or url-encoded CPID
+          schema:
+            type: string
+        - name: idType
+          required: false
+          in: query
+          schema:
+            type: string
+            enum: [ MSISDN, CPID ]
+            default: MSISDN
+          description: Type of subscriber ID. MSISDN or CPID.
+        - name: language
+          required: false
+          in: header
+          description: Requested language. Millom will attempt to send notification detail strings (plan IDs, descriptions) in this language, otherwise default language (english) will be used.
+          schema:
+            type: string
+            default: "en"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transactionId:
+                  type: string
+                  description: A unique ID for this transaction. Free form, but UUID is recommended.
+                  example: 'xxx-yyy-zzz'
+                types:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/NotificationType"
+                  description: "A list of notification types user accepts receiving"
+
+      responses:
+        "200":
+          description: "OK - notification accepted and queued"
+        default:
+          description: Error response
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "409":
-          description: "Purchase in progress, or already executed"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "500":
-          description: "Server Internal Error (Millom internal failure)"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "502":
-          description: "Bad gateway (upstream notification failed)"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "503":
-          description: "Capacity unavailable"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "504":
-          description: Failure from upstream operator
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/ErrorDocument"
+
+
 components:
   schemas: 
     AccountInfoResponse:
@@ -577,25 +514,83 @@ components:
         text:
           type: string
           description: Textual description of this offer, for humans to read.
-          example: "Super plan, 10 GB data valid for a week"      
-          
-    ErrorResponse:
+          example: "Super plan, 10 GB data valid for a week"
+
+    NotificationType:
+      type: "string"
+      description: >
+        Describes the state of the subscriber (reason for notification)
+        * `low-data` - User is out of data on all packs
+        * `out-of-data` - User is running low on data on all packs
+        * `pay-as-you-go` - User has no data packs provisioned and is paying per MB consumed
+        * `pack-near-consumption` - One of the users' packs are soon being consumed
+        * `pack-consumed` - One of the users' packs have been consumed
+        * `pack-expired` - One of the user's pack has expired. Expiry date and time should be conveyed in planDetails.expiryTime
+        * `pack-near-expiry` - One of the user's packs is about to expire. Expiry date and time should be conveyed in planDetail.expiryTime
+        * `low-monetary-balance` - The user's monetary balance is low.
+        * `monetary-reload` - The user just topped up his monetary balance.
+      example: "out-of-data"
+      enum:
+        - "low-data"
+        - "out-of-data"
+        - "pay-as-you-go"
+        - "pack-near-consumption"
+        - "pack-consumed"
+        - "pack-expired"
+        - "pack-near-expiry"
+        - "low-monetary-balance"
+        - "monetary-reload"
+
+    ErrorDocument:
       type: object
-      required: [error]
+      required: [cause]
       properties:
-        error:
+        message:
+          description: human readable error description
           type: string
-          description: Error cause description
+        cause:
+          description: Error class
+          type: string
+          enum:
+            - BAD_REQUEST
+            - PARSING_ERROR
+            - FORBIDDEN
+            - CONFLICT
+            - BAD_CPID
+            - BAD_MSISDN
+            - USER_BARRED
+            - ROAMING
+            - CONGESTED
+            - BE_THROTTLED
+            - OPERATOR_THROTTLED
+            - INVALID_PRODUCT
+            - UNSUPPORTED_OPERATOR
+            - UNKNOWN_SUBSCRIBER_ID
+            - PURCHASE_IN_PROGRESS
+            - PURCHASE_ALREADY_EXECUTED
+            - INSUFFICIENT_FUNDS
+            - FAILURE_IN_BU
+            - CONNECTION_TROUBLE
+            - TIMEOUT
+            - DISABLED
+            - NOT_IMPLEMENTED
+            - KEY_NOT_FOUND
+            - NO_CONSENT
+            - PIN_ENTRY_ERROR
+            - SHUTTING_DOWN
+            - INTERNAL_ERROR
         opcode:
           type: string
           description: Incoming error from backend, if applicable
-          
+
   securitySchemes:
     application:
       type: oauth2
       flows:
         clientCredentials:
-          tokenUrl: 'http://example.com/oauth/token'
+          tokenUrl: 'https://connect.staging.telenordigital.com'
           scopes:
             cco.dd.data-plan.gen.inquire: Allows querying user details
             cco.dd.data-plan.gen.activate: Allows activating plans on behalf of the user
+            cco.dd.data-plan.gen.register: Allows registering a userkey for notifications
+            cco.dd.data-plan.gen.webview: Allows retrieving link to a web page obtaining and activating offers
