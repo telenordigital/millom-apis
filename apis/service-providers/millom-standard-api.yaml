@@ -382,17 +382,19 @@ components:
       - "resultCode"
       type: object
       properties:
-        resultCode: 
+        subscriberState:
           type: string
-          enum: ["1","2","3"]
+          enum: ["GOOD_TO_GO","NEED_OFFERS","NEED_LOANS", "NEED_TOPUP"]
           description: >
             Aggregated status of user
             
-            * ´1´ - Good to go. User has positive data balance and can use Internet for the service
+            * ´GOOD_TO_GO´ - User has positive data balance and can use Internet for the service
             
-            * ´2´ - Offers available. The user have no activated data plans or low balance, but have offers to purchase. Offers will be populated in the 'offers' array.
-            
-            * '3' - Need topup. No offers was found that user could purchase. The user needs to add funds to his/her account.
+            * ´NEED_OFFERS´ - Offers available. The user have no activated data plans or low balance, but have offers to purchase. Offers will be populated in the 'offers' array.
+
+            * ´NEED_LOANS´ - User is low on data and monetary balance, but is eligible for loan offers. Populated in the 'offers' array
+
+            * 'NEED_TOPUP' - No offers was found that user could purchase. The user needs to add funds to his/her account.
         offers:
           type: array
           items:
@@ -456,7 +458,7 @@ components:
           description: >
             Unique transaction id that must allow a minimum of
             10 alphanumeric characters including dashes and dots. 
-            Preferrably UUID format IETF RFC4122.
+            Preferably UUID format IETF RFC4122.
         planid:
           type: string
           description: >
@@ -480,7 +482,7 @@ components:
           description: >
             Unique transaction id that must allow a minimum of
             10 alphanumeric characters including dashes and dots. 
-            Preferrably UUID format IETF RFC4122.
+            Preferably UUID format IETF RFC4122.
         status:
           type: string
           enum: ["completed", "processing", "failed"]
