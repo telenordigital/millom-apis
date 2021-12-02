@@ -34,10 +34,8 @@ paths:
         required: false
         in: query
         schema:
-          type: string
-          enum: [MSISDN, CPID]
-          default: MSISDN
-        description: Type of subscriber ID. MSISDN or CPID.
+          $ref: "#/components/schemas/KeyType"
+        description: Type of subscriber ID. MSISDN, CPID or OPET.
       responses:
         '200':
           description: OK
@@ -76,10 +74,8 @@ paths:
         required: false
         in: query
         schema:
-          type: string
-          enum: [MSISDN, CPID]
-          default: MSISDN
-        description: Type of subscriber ID. MSISDN or CPID.
+          $ref: "#/components/schemas/KeyType"
+        description: Type of subscriber ID. MSISDN, CPID or OPET.
       - name: language
         description: Requested language. Millom will attempt to return strings (plan IDs, descriptions) in this language, otherwise default language (english) will be used.
         required: false
@@ -125,10 +121,8 @@ paths:
         required: false
         in: query
         schema:
-          type: string
-          enum: [MSISDN, CPID]
-          default: MSISDN
-        description: Type of subscriber ID. MSISDN or CPID.
+          $ref: "#/components/schemas/KeyType"
+        description: Type of subscriber ID. MSISDN, CPID or OPET.
       - name: language
         description: Requested language. Millom will attempt to return strings (plan IDs, descriptions) in this language, otherwise default language (english) will be used.
         required: false
@@ -174,10 +168,8 @@ paths:
         required: false
         in: query
         schema:
-          type: string
-          enum: [MSISDN, CPID]
-          default: MSISDN
-        description: Type of subscriber ID. MSISDN or CPID.
+          $ref: "#/components/schemas/KeyType"
+        description: Type of subscriber ID. MSISDN, CPID or OPET.
       - name: language
         required: false
         in: header
@@ -236,10 +228,8 @@ paths:
           required: false
           in: query
           schema:
-            type: string
-            enum: [ MSISDN, CPID ]
-            default: MSISDN
-          description: Type of subscriber ID. MSISDN or CPID.
+            $ref: "#/components/schemas/KeyType"
+          description: Type of subscriber ID. MSISDN, CPID or OPET.
         - name: language
           required: false
           in: header
@@ -276,7 +266,20 @@ paths:
 
 
 components:
-  schemas: 
+  schemas:
+    KeyType:
+      type: string
+      enum: [ MSISDN, CPID, OPET ]
+      default: MSISDN
+      description: >
+        Type of user Identifier. It can hold the following values:
+
+        * ´MSISDN´ - The user's MSISDN number, on full international E.164 form.
+
+        * ´CPID´ - Carrier Plan Identifier. An ID obtained by querying Millom's CPID generator (using the CPID API)
+
+        * ´OPET´ - Operator Encrypted Token. An anonymized token encrypted by the operator and used towards operator APIs.
+
     AccountInfoResponse:
       type: object
       properties:
