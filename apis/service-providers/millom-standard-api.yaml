@@ -397,17 +397,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Offer"
-        cache:
-          type: object
-          properties:
-            ttl:
-              type: number
-              description: The number of seconds this response is considered to remain valid. Clients may cache this response for this time.
-            cache:
-              type: boolean
-              default: false
-              description: true if this offer was served from millom cache, or false if retrieved directly from operator.
-              
+
     Offer:
       type: object
       properties:
