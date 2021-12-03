@@ -2,7 +2,7 @@ openapi: 3.0.0
 servers: 
 - url: https://api.example.millom.com
 info:
-  version: 1.1.0
+  version: 1.2.0
   title: Millom standard service provider API
   description: >-
     This details Millom's standard API for service providers. 
@@ -30,14 +30,19 @@ paths:
         description: User identifier string. Can be MSISDN (default), or url-encoded CPID
         schema:
           type: string
-      - name: idType
+      - name: key_type
         required: false
         in: query
         schema:
+          $ref: "#/components/schemas/KeyType"
+        description: Type of subscriber ID. MSISDN, CPID or OPET.
+      - name: Accept-Language
+        required: false
+        in: header
+        schema:
           type: string
-          enum: [MSISDN, CPID]
-          default: MSISDN
-        description: Type of subscriber ID. MSISDN or CPID.
+        description: Users preferred language, as ISO-639-1 language code.\
+          Millom will try to internationalize strings (eg plan names) to this language, but may return default if wanted language is not configured.
       responses:
         '200':
           description: OK
@@ -72,15 +77,13 @@ paths:
         description: User identifier string. Can be MSISDN (default), or url-encoded CPID
         schema:
           type: string
-      - name: idType
+      - name: key_type
         required: false
         in: query
         schema:
-          type: string
-          enum: [MSISDN, CPID]
-          default: MSISDN
-        description: Type of subscriber ID. MSISDN or CPID.
-      - name: language
+          $ref: "#/components/schemas/KeyType"
+        description: Type of subscriber ID. MSISDN, CPID or OPET.
+      - name: Accept-Language
         description: Requested language. Millom will attempt to return strings (plan IDs, descriptions) in this language, otherwise default language (english) will be used.
         required: false
         in: header
@@ -121,15 +124,13 @@ paths:
         description: User identifier string. Can be MSISDN (default), or url-encoded CPID
         schema:
           type: string
-      - name: idType
+      - name: key_type
         required: false
         in: query
         schema:
-          type: string
-          enum: [MSISDN, CPID]
-          default: MSISDN
-        description: Type of subscriber ID. MSISDN or CPID.
-      - name: language
+          $ref: "#/components/schemas/KeyType"
+        description: Type of subscriber ID. MSISDN, CPID or OPET.
+      - name: Accept-Language
         description: Requested language. Millom will attempt to return strings (plan IDs, descriptions) in this language, otherwise default language (english) will be used.
         required: false
         in: header
@@ -170,15 +171,13 @@ paths:
         description: User identifier string. Can be MSISDN (default), or url-encoded CPID
         schema:
           type: string
-      - name: idType
+      - name: key_type
         required: false
         in: query
         schema:
-          type: string
-          enum: [MSISDN, CPID]
-          default: MSISDN
-        description: Type of subscriber ID. MSISDN or CPID.
-      - name: language
+          $ref: "#/components/schemas/KeyType"
+        description: Type of subscriber ID. MSISDN, CPID or OPET.
+      - name: Accept-Language
         required: false
         in: header
         description: Requested language. Millom will attempt to return strings (plan IDs, descriptions) in this language, otherwise default language (english) will be used.
@@ -232,14 +231,12 @@ paths:
           description: User identifier string. Can be MSISDN (default), or url-encoded CPID
           schema:
             type: string
-        - name: idType
+        - name: key_type
           required: false
           in: query
           schema:
-            type: string
-            enum: [ MSISDN, CPID ]
-            default: MSISDN
-          description: Type of subscriber ID. MSISDN or CPID.
+            $ref: "#/components/schemas/KeyType"
+          description: Type of subscriber ID. MSISDN, CPID or OPET.
         - name: language
           required: false
           in: header
@@ -276,7 +273,20 @@ paths:
 
 
 components:
-  schemas: 
+  schemas:
+    KeyType:
+      type: string
+      enum: [ MSISDN, CPID, OPET ]
+      default: MSISDN
+      description: >
+        Type of user Identifier. It can hold the following values:
+
+        * ´MSISDN´ - The user's MSISDN number, on full international E.164 form.
+
+        * ´CPID´ - Carrier Plan Identifier. An ID obtained by querying Millom's CPID generator (using the CPID API)
+
+        * ´OPET´ - Operator Encrypted Token. An anonymized token encrypted by the operator and used towards operator APIs.
+
     AccountInfoResponse:
       type: object
       properties:
@@ -379,35 +389,27 @@ components:
         
     OfferInfoResponse:
       required:
-      - "resultCode"
+      - "subscriberState"
       type: object
       properties:
-        resultCode: 
+        subscriberState:
           type: string
-          enum: ["1","2","3"]
+          enum: ["GOOD_TO_GO","NEED_OFFERS","NEED_LOANS", "NEED_TOPUP"]
           description: >
             Aggregated status of user
             
-            * ´1´ - Good to go. User has positive data balance and can use Internet for the service
+            * ´GOOD_TO_GO´ - User has positive data balance and can use Internet for the service
             
-            * ´2´ - Offers available. The user have no activated data plans or low balance, but have offers to purchase. Offers will be populated in the 'offers' array.
-            
-            * '3' - Need topup. No offers was found that user could purchase. The user needs to add funds to his/her account.
+            * ´NEED_OFFERS´ - Offers available. The user have no activated data plans or low balance, but have offers to purchase. Offers will be populated in the 'offers' array.
+
+            * ´NEED_LOANS´ - User is low on data and monetary balance, but is eligible for loan offers. Populated in the 'offers' array
+
+            * 'NEED_TOPUP' - No offers was found that user could purchase. The user needs to add funds to his/her account.
         offers:
           type: array
           items:
             $ref: "#/components/schemas/Offer"
-        cache:
-          type: object
-          properties:
-            ttl:
-              type: number
-              description: The number of seconds this response is considered to remain valid. Clients may cache this response for this time.
-            cache:
-              type: boolean
-              default: false
-              description: true if this offer was served from millom cache, or false if retrieved directly from operator.
-              
+
     Offer:
       type: object
       properties:
@@ -466,7 +468,7 @@ components:
           description: >
             Unique transaction id that must allow a minimum of
             10 alphanumeric characters including dashes and dots. 
-            Preferrably UUID format IETF RFC4122.
+            Preferably UUID format IETF RFC4122.
         planid:
           type: string
           description: >
@@ -490,7 +492,7 @@ components:
           description: >
             Unique transaction id that must allow a minimum of
             10 alphanumeric characters including dashes and dots. 
-            Preferrably UUID format IETF RFC4122.
+            Preferably UUID format IETF RFC4122.
         status:
           type: string
           enum: ["completed", "processing", "failed"]
@@ -503,6 +505,10 @@ components:
         transactionMessage:
           type: string
           description: Textual message from upstream operator
+        confirmationCode:
+          type: string
+          description: Receipt code from operator on successful activations. \
+            Uniquely identifies the activation on operator side.
     
     MultilingualText:
       type: object
@@ -545,43 +551,20 @@ components:
       type: object
       required: [cause]
       properties:
-        message:
+        errorMessage:
           description: human readable error description
           type: string
         cause:
           description: Error class
           type: string
           enum:
+            - ERROR_CAUSE_UNSPECIFIED
+            - INVALID_NUMBER
             - BAD_REQUEST
-            - PARSING_ERROR
-            - FORBIDDEN
-            - CONFLICT
-            - BAD_CPID
-            - BAD_MSISDN
-            - USER_BARRED
-            - ROAMING
-            - CONGESTED
-            - BE_THROTTLED
-            - OPERATOR_THROTTLED
-            - INVALID_PRODUCT
-            - UNSUPPORTED_OPERATOR
-            - UNKNOWN_SUBSCRIBER_ID
-            - PURCHASE_IN_PROGRESS
-            - PURCHASE_ALREADY_EXECUTED
-            - INSUFFICIENT_FUNDS
-            - FAILURE_IN_BU
-            - CONNECTION_TROUBLE
-            - TIMEOUT
-            - DISABLED
-            - NOT_IMPLEMENTED
-            - KEY_NOT_FOUND
-            - NO_CONSENT
-            - PIN_ENTRY_ERROR
-            - SHUTTING_DOWN
-            - INTERNAL_ERROR
-        opcode:
-          type: string
-          description: Incoming error from backend, if applicable
+            - USER_ROAMING
+            - USER_OPT_OUT
+            - TOO_MANY_REQUESTS
+            - SERVICE_UNAVAILABLE
 
   securitySchemes:
     application:
