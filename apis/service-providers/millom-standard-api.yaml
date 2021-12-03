@@ -30,12 +30,19 @@ paths:
         description: User identifier string. Can be MSISDN (default), or url-encoded CPID
         schema:
           type: string
-      - name: idType
+      - name: key_type
         required: false
         in: query
         schema:
           $ref: "#/components/schemas/KeyType"
         description: Type of subscriber ID. MSISDN, CPID or OPET.
+      - name: Accept-Language
+        required: false
+        in: header
+        schema:
+          type: string
+        description: Users preferred language, as ISO-639-1 language code.\
+          Millom will try to internationalize strings (eg plan names) to this language, but may return default if wanted language is not configured.
       responses:
         '200':
           description: OK
@@ -70,13 +77,13 @@ paths:
         description: User identifier string. Can be MSISDN (default), or url-encoded CPID
         schema:
           type: string
-      - name: idType
+      - name: key_type
         required: false
         in: query
         schema:
           $ref: "#/components/schemas/KeyType"
         description: Type of subscriber ID. MSISDN, CPID or OPET.
-      - name: language
+      - name: Accept-Language
         description: Requested language. Millom will attempt to return strings (plan IDs, descriptions) in this language, otherwise default language (english) will be used.
         required: false
         in: header
@@ -117,13 +124,13 @@ paths:
         description: User identifier string. Can be MSISDN (default), or url-encoded CPID
         schema:
           type: string
-      - name: idType
+      - name: key_type
         required: false
         in: query
         schema:
           $ref: "#/components/schemas/KeyType"
         description: Type of subscriber ID. MSISDN, CPID or OPET.
-      - name: language
+      - name: Accept-Language
         description: Requested language. Millom will attempt to return strings (plan IDs, descriptions) in this language, otherwise default language (english) will be used.
         required: false
         in: header
@@ -164,13 +171,13 @@ paths:
         description: User identifier string. Can be MSISDN (default), or url-encoded CPID
         schema:
           type: string
-      - name: idType
+      - name: key_type
         required: false
         in: query
         schema:
           $ref: "#/components/schemas/KeyType"
         description: Type of subscriber ID. MSISDN, CPID or OPET.
-      - name: language
+      - name: Accept-Language
         required: false
         in: header
         description: Requested language. Millom will attempt to return strings (plan IDs, descriptions) in this language, otherwise default language (english) will be used.
@@ -224,7 +231,7 @@ paths:
           description: User identifier string. Can be MSISDN (default), or url-encoded CPID
           schema:
             type: string
-        - name: idType
+        - name: key_type
           required: false
           in: query
           schema:
@@ -382,7 +389,7 @@ components:
         
     OfferInfoResponse:
       required:
-      - "resultCode"
+      - "subscriberState"
       type: object
       properties:
         subscriberState:
@@ -498,6 +505,10 @@ components:
         transactionMessage:
           type: string
           description: Textual message from upstream operator
+        confirmationCode:
+          type: string
+          description: Receipt code from operator on successful activations. \
+            Uniquely identifies the activation on operator side.
     
     MultilingualText:
       type: object
