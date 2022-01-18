@@ -567,7 +567,7 @@ components:
             * `SERVICE_UNAVAILABLE` - Requested service is unavailable<br>
             * `PURCHASE_CONFLICT` - Purchase cannot be completed, as it conflicts with ongoing purchase or current subscription<br>
             * `INSUFFICIENT_FUNDS` - Purchase cannot be completed due insufficient funds<br>
-            * `NOT_ALLOWED - Request is syntactically ok but is not allowed to complete<br>
+            * `NOT_ALLOWED`  - Request is syntactically ok but is not allowed to complete<br>
           enum:
             - ERROR_CAUSE_UNSPECIFIED
             - INVALID_NUMBER
