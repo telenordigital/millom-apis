@@ -525,16 +525,16 @@ components:
     NotificationType:
       type: "string"
       description: >
-        Describes the state of the subscriber (reason for notification)
-        * `low-data` - User is out of data on all packs
-        * `out-of-data` - User is running low on data on all packs
-        * `pay-as-you-go` - User has no data packs provisioned and is paying per MB consumed
-        * `pack-near-consumption` - One of the users' packs are soon being consumed
-        * `pack-consumed` - One of the users' packs have been consumed
-        * `pack-expired` - One of the user's pack has expired. Expiry date and time should be conveyed in planDetails.expiryTime
-        * `pack-near-expiry` - One of the user's packs is about to expire. Expiry date and time should be conveyed in planDetail.expiryTime
-        * `low-monetary-balance` - The user's monetary balance is low.
-        * `monetary-reload` - The user just topped up his monetary balance.
+        Describes the state of the subscriber (reason for notification)<br>
+        * `low-data` - User is out of data on all packs<br>
+        * `out-of-data` - User is running low on data on all packs<br>
+        * `pay-as-you-go` - User has no data packs provisioned and is paying per MB consumed<br>
+        * `pack-near-consumption` - One of the users' packs are soon being consumed<br>
+        * `pack-consumed` - One of the users' packs have been consumed<br>
+        * `pack-expired` - One of the user's pack has expired. Expiry date and time should be conveyed in planDetails.expiryTime<br>
+        * `pack-near-expiry` - One of the user's packs is about to expire. Expiry date and time should be conveyed in planDetail.expiryTime<br>
+        * `low-monetary-balance` - The user's monetary balance is low.<br>
+        * `monetary-reload` - The user just topped up his monetary balance.<br>
       example: "out-of-data"
       enum:
         - "low-data"
@@ -557,6 +557,18 @@ components:
         cause:
           description: Error class
           type: string
+          description: >
+            Describes the state of the subscriber (reason for notification)<br>
+            * `ERROR_CAUSE_UNSPECIFIED` - The cause of the error is unknown or is not specified<br>
+            * `INVALID_NUMBER` - The user identifier provided in the request is invalid<br>
+            * `BAD_REQUEST` - Original request was malformed or has missing parameters<br>
+            * `USER_ROAMING` - User is roaming<br>
+            * `USER_OPT_OUT` - User has not opted in the program<br>
+            * `TOO_MANY_REQUESTS` - Request rate exceeds limits<br>
+            * `SERVICE_UNAVAILABLE` - Requested service is unavailable<br>
+            * `PURCHASE_CONFLICT` - Purchase cannot be completed, as it conflicts with ongoing purchase or current subscription<br>
+            * `INSUFFICIENT_FUNDS` - Purchase cannot be completed due insufficient funds<br>
+            * `NOT_ALLOWED - Request is syntactically ok but is not allowed to complete<br>
           enum:
             - ERROR_CAUSE_UNSPECIFIED
             - INVALID_NUMBER
@@ -565,6 +577,9 @@ components:
             - USER_OPT_OUT
             - TOO_MANY_REQUESTS
             - SERVICE_UNAVAILABLE
+            - PURCHASE_CONFLICT
+            - INSUFFICIENT_FUNDS
+            - NOT_ALLOWED
 
   securitySchemes:
     application:
