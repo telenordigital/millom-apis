@@ -555,10 +555,9 @@ components:
           description: human readable error description
           type: string
         cause:
-          description: Error class
           type: string
           description: >
-            Describes the state of the subscriber (reason for notification)<br>
+            Error class. Describes the state of the subscriber (reason for notification)<br>
             * `ERROR_CAUSE_UNSPECIFIED` - The cause of the error is unknown or is not specified<br>
             * `INVALID_NUMBER` - The user identifier provided in the request is invalid<br>
             * `BAD_REQUEST` - Original request was malformed or has missing parameters<br>
