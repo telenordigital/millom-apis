@@ -214,7 +214,8 @@ paths:
     post:
       summary: Register userkey for receiving notifications
       description: Registers a userkey (cpid) as consented and accepting sending subscription details
-        as needed for providing certain notification on subscription events
+        as needed for providing certain notification on subscription events.
+        An empty list of types can be used to unregister from notifications/consent revocation.
       security:
         - application:
             - cco.dd.data-plan.gen.register
@@ -259,7 +260,8 @@ paths:
                   type: array
                   items:
                     $ref: "#/components/schemas/NotificationType"
-                  description: "A list of notification types user accepts receiving"
+                  description: "A list of notification types user accepts receiving.
+                  An empty list signals unregistration from notifications or consent revocation."
 
       responses:
         "200":
