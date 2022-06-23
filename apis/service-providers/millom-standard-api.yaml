@@ -263,7 +263,7 @@ paths:
 
       responses:
         "200":
-          description: "OK - notification accepted and queued"
+          description: "OK - user registered for notifications. No body returned."
         default:
           description: Error response
           content:
