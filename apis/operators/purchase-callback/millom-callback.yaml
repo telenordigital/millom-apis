@@ -6,49 +6,50 @@ info:
     \ transaction ID provided must match an outstanding activation call to succeed."
   version: "1.0.1"
 servers:
-- url: "https://api.ddt.telenor.io/callback/1.0.0"
+  - url: "https://api.ddt.telenor.io/"
 security:
-- application:
-  - "cco.dd.data-plan.inquire"
+  - application:
+      - "cco.dd.data-plan.inquire"
 paths:
   /callback/v1/{operator}/:
     post:
       summary: "Notify activation result"
       description: "This is an async callback with result on a subscriber's plan activation"
       parameters:
-      - name: "operator"
-        in: "path"
-        description: "operator code for notifying operator (TP, GP)"
-        required: true
-        style: "simple"
-        explode: false
-        schema:
-          type: "string"
-      - name: "idValue"
-        in: "query"
-        description: "The user identifier string."
-        required: true
-        style: "form"
-        explode: true
-        schema:
-          type: "string"
-      - name: "idType"
-        in: "query"
-        description: "The type of the userId in idValue. Can be either MSISDN or CPID"
-        required: true
-        style: "form"
-        explode: true
-        schema:
-          type: "string"
-          enum:
-          - "MSISDN"
-          - "CPID"
+        - name: "operator"
+          in: "path"
+          description: "operator code for notifying operator (TRI)"
+          required: true
+          style: "simple"
+          explode: false
+          schema:
+            type: "string"
+        - name: "idValue"
+          in: "query"
+          description: "The user identifier string."
+          required: true
+          style: "form"
+          explode: true
+          schema:
+            type: "string"
+        - name: "idType"
+          in: "query"
+          description: "The type of the userId in idValue. Can be either MSISDN or CPID or OPET"
+          required: true
+          style: "form"
+          explode: true
+          schema:
+            type: "string"
+            enum:
+              - "MSISDN"
+              - "CPID"
+              - "OPET"
       requestBody:
         content:
           application/json:
             schema:
               required:
-              - "transactionId"
+                - "transactionId"
               type: "object"
               properties:
                 transactionId:
@@ -59,39 +60,7 @@ paths:
                   type: "string"
                 errorType:
                   type: "string"
-                dryRun:
-                  type: "boolean"
-      responses:
-        "200":
-          description: "OK"
-        "400":
-          description: "Bad request. (missing mandatory query parameters or malformed\
-            \ body)"
-        "404":
-          description: "Not found. (Transaction not found in cache)"
-        "500":
-          description: "Server Internal error"
-  /api/callback/gp/:
-    post:
-      summary: "Notify activation result for GP"
-      description: "Legacy API supported of historical reasons"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              required:
-              - "transactionId"
-              type: "object"
-              properties:
-                transactionId:
-                  type: "string"
-                message:
-                  type: "string"
-                appId:
-                  type: "string"
-                resultCode:
-                  type: "integer"
-                subscriberId:
+                errorCode:
                   type: "string"
                 dryRun:
                   type: "boolean"
@@ -105,7 +74,6 @@ paths:
           description: "Not found. (Transaction not found in cache)"
         "500":
           description: "Server Internal error"
-      deprecated: true
 components:
   securitySchemes:
     application:

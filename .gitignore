@@ -1,1 +1,96 @@
+/scripts/python/test-results.log
+*.class
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+*.pydevproject
+uat-results.log
 .idea
+.project
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+build/**
+build/**/*
+src/generated/**
+/scripts/python/cpid-pool.properties
+src/generated/**/*
+csg-ifc/target/generated-sources/java/**
+*.p
+*.pyc
+*.orig
+*.iml
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+*.ipr
+*.iws
+# Gradle
+.gradle/
+gradlew.bat
+gradle.properties
+src/generated
+log/
+xdpa*.cfg
+config-overrides
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+
+/dist.zip
+/.idea
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+# Netbeans files
+/.nb-gradle/
+.nb-gradle-properties
+
+.DS_Store
