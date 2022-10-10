@@ -80,6 +80,6 @@ components:
       type: "oauth2"
       flows:
         clientCredentials:
-          tokenUrl: "https://connect.staging.telenordigital.com/oauth/token"
+          tokenUrl: "https://signin.telenorid-staging.com/oauth/token"
           scopes:
             cco.dd.data-plan.inquire: "allows sending callback notice"
