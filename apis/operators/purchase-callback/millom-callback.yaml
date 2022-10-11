@@ -18,12 +18,19 @@ paths:
       parameters:
         - name: "operator"
           in: "path"
-          description: "operator code for notifying operator (TRI)"
+          description: "operator code for notifying operator"
           required: true
           style: "simple"
           explode: false
           schema:
             type: "string"
+            enum:
+              - "tri"
+              - "indosat"
+              - "tp"
+              - "gp"
+              - "digi"
+              - "dtac"
         - name: "idValue"
           in: "query"
           description: "The user identifier string."
@@ -34,36 +41,59 @@ paths:
             type: "string"
         - name: "idType"
           in: "query"
-          description: "The type of the userId in idValue. Can be either MSISDN or CPID or OPET"
+          description: "The type of the userId in idValue"
+          example: "5tyFU4tub89hTYnPqO=="
           required: true
           style: "form"
           explode: true
           schema:
             type: "string"
             enum:
+              - "OPET"
               - "MSISDN"
               - "CPID"
-              - "OPET"
+            description: >
+              User Id Type. Operators use different identifiers to identify a customer:
+                * `OPET` - Operator Encrypted Token
+                * `MSISDN` - Mobile Subscriber Integrated Services Digital Network
+                * `CPID` -  Carrier Plan Identifier
       requestBody:
         content:
           application/json:
             schema:
               required:
                 - "transactionId"
+                - "appId"
               type: "object"
               properties:
                 transactionId:
                   type: "string"
+                  description: "Identifier of a transaction, the same as the purchase transactionId"
                 message:
                   type: "string"
+                  description: "Can be anything. Generic purpose field, used to pass any information"
                 appId:
                   type: "string"
+                  description: "Identifier of the Service Provider"
+                  example: "facebook"
+                  enum:
+                    - "google"
+                    - "facebook"
+                    - "facebook-cp"
+                    - "tiktok"
                 errorType:
-                  type: "string"
+                  $ref: '#/components/schemas/ErrorType'
                 errorCode:
                   type: "string"
+                  example: "400.70.2"
+                  description: "Any error code to provide more insight into the problem, if required"
                 dryRun:
                   type: "boolean"
+                  description: "a dry run. true - it's not going to be processed, only an OK response is going to be returned. false - callback is going to be processed. "
+                redirectLink:
+                  type: "string"
+                  description: "A redirect link to which the webview should redirect to (if applicable)"
+                  example: "http://someredirectlink.com/user/id"
       responses:
         "200":
           description: "OK"
@@ -75,6 +105,67 @@ paths:
         "500":
           description: "Server Internal error"
 components:
+  schemas:
+    ErrorType:
+      type: string
+      enum:
+        - TIMEOUT
+        - PARSING_ERROR
+        - INTERNAL_ERROR
+        - FAILURE_IN_BU
+        - UNKNOWN_SUBSCRIBER_ID
+        - INVALID_PRODUCT
+        - CONNECTION_TROUBLE
+        - BAD_CPID
+        - BAD_MSISDN
+        - USER_BARRED
+        - ROAMING
+        - CONGESTED
+        - PURCHASE_IN_PROGRESS
+        - PURCHASE_ALREADY_EXECUTED
+        - DISABLED
+        - NOT_IMPLEMENTED
+        - BE_THROTTLED
+        - OPERATOR_THROTTLED
+        - INSUFFICIENT_FUNDS
+        - UNSUPPORTED_OPERATOR
+        - BAD_REQUEST
+        - CONFLICT
+        - FORBIDDEN
+        - KEY_NOT_FOUND
+        - NO_CONSENT
+        - PIN_ENTRY_ERROR
+        - SHUTTING_DOWN
+      description: >
+        Error Type. Can also be a Http Status Code, Millom will handle it.:
+          * `TIMEOUT` - The connection to the BU timed out
+          * `PARSING_ERROR` - the returned response from the BU is unparsable
+          * `INTERNAL_ERROR` - Internal error in DPA
+          * `FAILURE_IN_BU` - Technical trouble from the upstream server (BU returned a 5xx error)
+          * `UNKNOWN_SUBSCRIBER_ID` - The subscriber ID is not known to the operator
+          * `INVALID_PRODUCT` - The product attempted to be purchased is not valid
+          * `CONNECTION_TROUBLE` - Upstream connectivity issues, failed to conncet to the BU
+          * `BAD_CPID` - The CPID is invalid or expired
+          * `BAD_MSISDN` - The MSISDN could not be parsed
+          * `USER_BARRED` - This user has been prevented from accessing the service
+          * `ROAMING` - This user is roaming and should be prevented from accessing the service
+          * `CONGESTED` - Congested on north-bound interface (DPA connector executors) 
+          * `PURCHASE_IN_PROGRESS` - The specified item is already purchased, but the transaction is still in progress, and cannot be repeated.
+          * `PURCHASE_ALREADY_EXECUTED` - The purchase was already made, and cannot be repeated
+          * `DISABLED` - Operator access disabled on dpa
+          * `NOT_IMPLEMENTED` - This method is not implemented in the BU or in DPA
+          * `BE_THROTTLED` - Throttling on south-bound interface (BU backends)
+          * `OPERATOR_THROTTLED` - Throttling from operator
+          * `INSUFFICIENT_FUNDS` - Purchase failed (or no offers can be given) as monetary balance is low
+          * `UNSUPPORTED_OPERATOR` - The MSISDN maps to an operator that isn't supported
+          * `BAD_REQUEST` - The request data was poorly formatted or invalid
+          * `CONFLICT` - Action (purchase) conflicts with subscribers existing products/packages
+          * `FORBIDDEN` - Forbidden. DPA or BU refuse to take the action attempted for this client or subscriber
+          * `KEY_NOT_FOUND` - The request contains a key that could not be found in our system (such as in cache or memory maps)
+          * `NO_CONSENT` - Operation failed due lack of user consent
+          * `PIN_ENTRY_ERROR` - failed due to user entering wrong pin code
+          * `SHUTTING_DOWN` - The server is shutting down
+
   securitySchemes:
     application:
       type: "oauth2"
