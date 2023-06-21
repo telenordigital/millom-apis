@@ -165,6 +165,7 @@ components:
           * `NO_CONSENT` - Operation failed due lack of user consent
           * `PIN_ENTRY_ERROR` - failed due to user entering wrong pin code
           * `SHUTTING_DOWN` - The server is shutting down
+          * `DUPLICATED_CALLBACK` - The duplicated callback received
 
   securitySchemes:
     application:
