@@ -102,6 +102,8 @@ paths:
             \ body)"
         "404":
           description: "Not found. (Transaction not found in cache)"
+        "409":
+          description: "Transaction has been already completed."
         "500":
           description: "Server Internal error"
 components:
@@ -136,6 +138,7 @@ components:
         - NO_CONSENT
         - PIN_ENTRY_ERROR
         - SHUTTING_DOWN
+        - DUPLICATED_CALLBACK
       description: >
         Error Type. Can also be a Http Status Code, Millom will handle it.:
           * `TIMEOUT` - The connection to the BU timed out
@@ -165,6 +168,7 @@ components:
           * `NO_CONSENT` - Operation failed due lack of user consent
           * `PIN_ENTRY_ERROR` - failed due to user entering wrong pin code
           * `SHUTTING_DOWN` - The server is shutting down
+          * `DUPLICATED_CALLBACK` - Transaction has been already completed.
 
   securitySchemes:
     application:
