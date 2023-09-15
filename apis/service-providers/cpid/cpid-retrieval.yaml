@@ -39,7 +39,7 @@ paths:
                   cpid:
                     type: string
                     description: The CPID token to use on Millom APIs
-                    example: 'xxx-yyy-zzz'
+                    example: '4mcdczyRWzotNKja0P+nHSdA9ach8APb6focdvCkZOkO7GS5rikLYGdL24I1NSsHeGdmdTlPVGo4QkhF,50216'
                   ttlSeconds:
                     type: integer
                     description: The time to live of this CPID, in seconds from received time. A new CPID must be obtained before this time.

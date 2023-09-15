@@ -3,7 +3,7 @@ servers:
 - url: http://localhost:8080
 info:
   version: 0.0.1
-  title: Millom rich notification API for service providers
+  title: Millom API rich notification-based API for service providers
   description: >-
     Rich notification API allows service providers to fetch offers
     if their APIs are not zero-rated even in the cases when the user
@@ -49,9 +49,11 @@ paths:
   /{serviceProvider}/{operator}/{cpid}/offers:
     get:
       summary: Refresh offers via signed link
-      description: >
+      description: |
         Fetch updated offers via a signed link that was provided in other channel
-        (for example, in a rich notification request)
+        (for example, in a rich notification request).
+        
+        Works even if the user is out of data, since it points to a zero-rated endpoint.
       tags:
         - Provided by Millom
       parameters:
@@ -80,9 +82,11 @@ paths:
   /{serviceProvider}/{operator}/{cpid}/ping:
     get:
       summary: Check network connectivity
-      description: >
+      description: |
         Check network connectivity to detect when mobile users are out of data,
         but still have coverage.
+        
+        Works even if the user is out of data, since it points to a zero-rated endpoint.
       tags:
         - Provided by Millom
       parameters:
@@ -103,6 +107,55 @@ paths:
           description: Service unavailable
         400:
           description: Bad request
+
+  /{serviceProvider}/{operator}/{cpid}/purchasePlan:
+    get:
+      summary: Initiate purchase
+      description: |
+        Initiate purchase of a product using purchase link provided in the offers list.
+        
+        Works even if the user is out of data, since it points to a zero-rated endpoint.
+      tags:
+        - Provided by Millom
+      parameters:
+        - $ref: "#/components/parameters/serviceProvider"
+        - $ref: "#/components/parameters/operator"
+        - $ref: "#/components/parameters/cpid"
+        - $ref: "#/components/parameters/uuid"
+        - $ref: "#/components/parameters/expirySeconds"
+        - $ref: "#/components/parameters/signature"
+        - name: fundSource
+          in: query
+          description: Identifies source of funds for this activation
+          schema:
+            $ref: "#/components/schemas/FundSource"
+        - name: planId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: transactionId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: Accept-Language
+          in: header
+          schema:
+            type: string
+
+      responses:
+        200:
+          description: OK
+        401:
+          description: Unauthorized
+        500:
+          description: Internal server error
+        503:
+          description: Service unavailable
+        400:
+          description: Bad request
+
 
 components:
   securitySchemes:
@@ -160,6 +213,23 @@ components:
           type: string
           description: random text string with offer cookie data. \
             If present, it must be provided in activation request.
+        fundSource:
+          allOf:
+            - $ref: "#/components/schemas/FundSource"
+            - description: Identifies source of funds that can be used to purchase this plan
+
+        paymentUri:
+          type: string
+          description: > 
+            A link initiate purchase with e-wallet payment directly from end-user device.
+            Works even if the user is out of data, since it points to a zero-rated endpoint.
+          example: https://millom.static.api/v1/ewallet/myspace/mycomm/7%2FC8NpcqRiX3rja4JslR83FtKXHSJnMgXJOXZ%2FawPWIge8WFcBt0CpmbXJVkac2f53GGjYqeGjlGjuiE1bKYJhh9J0t3dIK6iXnN7g0Fxnjv0rTV1XvgB95GN0folvrxG42GnPSYL21oLVSUrgdA8BJBdZZFW082ebg%2B%2Bn5dRsMJs96jFqD1o8rzoYq1rDh15o1Lgfe%2BEPIb6zk7FjYs3OLOSpkqo7hQZkg2UXI1OXNYcWg%3D%2C47001??planId=SOMETHING2GB&planName=Freedom+Apps+IG+%26+FB+2GB+%2F+1+Hari&planDescription=Freedom+Apps+Facebook+%26+Instagram+2GB+%2F+1+Hari.+Kuota+hanya+dapat+digunakan+untuk+Someapp+%26+Someotherapp.+Penggunaan+aplikasi+lain+akan+menggunakan+pulsa+atau+kuota+lainnya&planPrice=5000.00&planCurrency=IDR&transactionId=cc15abad-30cc-4e84-85bb-c4c28ddaddde&uuid=bbe5531d-0680-4632-a2ab-ff91e7e69f24&expirySeconds=1694515016&signature=5pmfikymoIJdEzjjMZoIVX1_BdbwGhBqpsfFNUVwr3c%3D
+        purchaseLink:
+          type: string
+          description: >
+            A link initiate purchase with e-wallet payment directly from end-user device.
+            Works even if the user is out of data, since it points to a zero-rated endpoint.
+          example: https://millom.static.api/v1/ewallet/myspace/mycomm/7%2FC8NpcqRiX3rja4JslR83FtKXHSJnMgXJOXZ%2FawPWIge8WFcBt0CpmbXJVkac2f53GGjYqeGjlGjuiE1bKYJhh9J0t3dIK6iXnN7g0Fxnjv0rTV1XvgB95GN0folvrxG42GnPSYL21oLVSUrgdA8BJBdZZFW082ebg%2B%2Bn5dRsMJs96jFqD1o8rzoYq1rDh15o1Lgfe%2BEPIb6zk7FjYs3OLOSpkqo7hQZkg2UXI1OXNYcWg%3D%2C47001??planId=SOMETHING2GB&transactionId=cc15abad-30cc-4e84-85bb-c4c28ddaddde&uuid=bbe5531d-0680-4632-a2ab-ff91e7e69f24&expirySeconds=1694515016&signature=5pmfikymoIJdEzjjMZoIVX1_BdbwGhBqpsfFNUVwr3c%3D
     MultilingualText:
       type: object
       properties:
@@ -195,6 +265,13 @@ components:
             
             Can be used directly with a `GET` request.
           example: "https://millom.static.api/myspace/mycomm/7%2FC8NpcqRiX3rja4JslR83FtKXHSJnMgXJOXZ%2FawPWIge8WFcBt0CpmbXJVkac2f53GGjYqeGjlGjuiE1bKYJhh9J0t3dIK6iXnN7g0Fxnjv0rTV1XvgB95GN0folvrxG42GnPSYL21oLVSUrgdA8BJBdZZFW082ebg%2B%2Bn5dRsMJs96jFqD1o8rzoYq1rDh15o1Lgfe%2BEPIb6zk7FjYs3OLOSpkqo7hQZkg2UXI1OXNYcWg%3D%2C47001/ping?uuid=bbe5531d-0680-4632-a2ab-ff91e7e69f24&expirySeconds=1694515016&signature=5pmfikymoIJdEzjjMZoIVX1_BdbwGhBqpsfFNUVwr3c%3D"
+    FundSource:
+      type: string
+      enum:
+        - WALLET
+        - EWALLET
+        - LOAN
+        - FREE
   parameters:
     serviceProvider:
       name: serviceProvider
