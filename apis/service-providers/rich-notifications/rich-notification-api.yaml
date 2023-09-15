@@ -1,0 +1,238 @@
+openapi: 3.0.0
+servers:
+- url: http://localhost:8080
+info:
+  version: 0.0.1
+  title: Millom rich notification API for service providers
+  description: >-
+    Rich notification API allows service providers to fetch offers
+    if their APIs are not zero-rated even in the cases when the user
+    is completely out of data.
+
+paths:
+  /defined/by/service/provider:
+    post:
+      tags:
+        - Implemented by service provider
+      summary: Service provider rich notifications receiving API
+      description: >
+        Millom sends rich notification to this endpoint 
+        implemented by the service provider.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - title: cpid
+                  type: object
+                  properties:
+                    cpid:
+                      type: string
+                      description: CPID — volatile user identifier
+                      example: '0uZmrnhbJa5YMBHuuVUQ+6nCWMoCZusDLNho3dkrt62XKlIQ582BkYBaz5yKKPdE+U/3ezNMWtIecmkxRUFjRmxNODNN,51001'
+                - $ref: "#/components/schemas/RefreshableOffers"
+
+      responses:
+        200:
+          description: Notification is accepted for delivery
+        500:
+          description: Internal server error
+        503:
+          description: Service unavailable
+        400:
+          description: Bad request
+      security:
+        - serviceProviderAuthentication:
+            - any
+
+  /{serviceProvider}/{operator}/{cpid}/offers:
+    get:
+      summary: Refresh offers via signed link
+      description: >
+        Fetch updated offers via a signed link that was provided in other channel
+        (for example, in a rich notification request)
+      tags:
+        - Provided by Millom
+      parameters:
+        - $ref: "#/components/parameters/serviceProvider"
+        - $ref: "#/components/parameters/operator"
+        - $ref: "#/components/parameters/cpid"
+        - $ref: "#/components/parameters/uuid"
+        - $ref: "#/components/parameters/expirySeconds"
+        - $ref: "#/components/parameters/signature"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefreshableOffers"
+        401:
+          description: Unauthorized
+        500:
+          description: Internal server error
+        503:
+          description: Service unavailable
+        400:
+          description: Bad request
+
+  /{serviceProvider}/{operator}/{cpid}/ping:
+    get:
+      summary: Check network connectivity
+      description: >
+        Check network connectivity to detect when mobile users are out of data,
+        but still have coverage.
+      tags:
+        - Provided by Millom
+      parameters:
+        - $ref: "#/components/parameters/serviceProvider"
+        - $ref: "#/components/parameters/operator"
+        - $ref: "#/components/parameters/cpid"
+        - $ref: "#/components/parameters/uuid"
+        - $ref: "#/components/parameters/expirySeconds"
+        - $ref: "#/components/parameters/signature"
+      responses:
+        200:
+          description: OK
+        401:
+          description: Unauthorized
+        500:
+          description: Internal server error
+        503:
+          description: Service unavailable
+        400:
+          description: Bad request
+
+components:
+  securitySchemes:
+    serviceProviderAuthentication:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: "https://provided.by.service.provider"
+          scopes:
+            any: allows incoming rich notifications
+  schemas:
+    Offer:
+      type: object
+      properties:
+        planId:
+          type: string
+          description: Unique ID for this offered plan
+        cost:
+          type: string
+          description: Cost of this offer, as a quoted decimal number.
+          format: currency
+          example: "14"
+        costCurrency:
+          type: string
+          description: ISO 4217 code for the currency of the cost.
+        type:
+          type: string
+          description: Description of the type of dataplan this is.
+          example: "Data"
+        planName:
+          type: array
+          items:
+            $ref: "#/components/schemas/MultilingualText"
+        planDescription:
+          type: array
+          items:
+            $ref: "#/components/schemas/MultilingualText"
+        quota:
+          description: The initial size of this plan, in bytes, minutes etc
+          type: array
+          items:
+            type: object
+            properties:
+              unit:
+                type: string
+                enum: ["bytes", "data-minutes", "voice-minutes", "sms"]
+                example: "bytes"
+              quota:
+                type: number
+                example: 1073741824
+                description: >
+                  The value of the initial size, in the given unit.
+                  Unlimited plans are expressed with a byte quota value of 2^63 - 1 (9223372036854775807).
+        offerContext:
+          type: string
+          description: random text string with offer cookie data. \
+            If present, it must be provided in activation request.
+    MultilingualText:
+      type: object
+      properties:
+        language:
+          type: string
+          description: What language the 'text' field is expressed as. BCP-47 language code
+          example: "en-us"
+        text:
+          type: string
+          description: Textual description of this offer, for humans to read.
+          example: "Super plan, 10 GB data valid for a week"
+    RefreshableOffers:
+      type: object
+      properties:
+        offers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Offer"
+        refresh:
+          type: string
+          description: >
+            A link _end-user client_ uses to fetch most recent offers 
+            (the endpoint is typically zero-rated). 
+            
+            Can be used directly with a `GET` request.
+          example: "https://millom.static.api/myspace/mycomm/7%2FC8NpcqRiX3rja4JslR83FtKXHSJnMgXJOXZ%2FawPWIge8WFcBt0CpmbXJVkac2f53GGjYqeGjlGjuiE1bKYJhh9J0t3dIK6iXnN7g0Fxnjv0rTV1XvgB95GN0folvrxG42GnPSYL21oLVSUrgdA8BJBdZZFW082ebg%2B%2Bn5dRsMJs96jFqD1o8rzoYq1rDh15o1Lgfe%2BEPIb6zk7FjYs3OLOSpkqo7hQZkg2UXI1OXNYcWg%3D%2C47001/offers?uuid=bbe5531d-0680-4632-a2ab-ff91e7e69f24&expirySeconds=1694515016&signature=5pmfikymoIJdEzjjMZoIVX1_BdbwGhBqpsfFNUVwr3c%3D"
+        ping:
+          type: string
+          description: >
+            A link _end-user client_ uses to check if current connection 
+            issue is due to lack of data or missing coverage
+            (the endpoint is typically zero-rated)
+            
+            Can be used directly with a `GET` request.
+          example: "https://millom.static.api/myspace/mycomm/7%2FC8NpcqRiX3rja4JslR83FtKXHSJnMgXJOXZ%2FawPWIge8WFcBt0CpmbXJVkac2f53GGjYqeGjlGjuiE1bKYJhh9J0t3dIK6iXnN7g0Fxnjv0rTV1XvgB95GN0folvrxG42GnPSYL21oLVSUrgdA8BJBdZZFW082ebg%2B%2Bn5dRsMJs96jFqD1o8rzoYq1rDh15o1Lgfe%2BEPIb6zk7FjYs3OLOSpkqo7hQZkg2UXI1OXNYcWg%3D%2C47001/ping?uuid=bbe5531d-0680-4632-a2ab-ff91e7e69f24&expirySeconds=1694515016&signature=5pmfikymoIJdEzjjMZoIVX1_BdbwGhBqpsfFNUVwr3c%3D"
+  parameters:
+    serviceProvider:
+      name: serviceProvider
+      required: true
+      in: path
+      description: Agreed service provider identifier to access the millom platform
+      schema:
+        type: string
+    operator:
+      name: operator
+      required: true
+      in: path
+      description: Operator name
+      schema:
+        type: string
+    cpid:
+      name: cpid
+      required: true
+      in: path
+      description: Subscriber identifier
+      schema:
+        type: string
+    uuid:
+      name: uuid
+      in: query
+      required: true
+      schema:
+        type: string
+    expirySeconds:
+      name: expirySeconds
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date
+    signature:
+      name: signature
+      in: query
+      required: true
+      schema:
+        type: string

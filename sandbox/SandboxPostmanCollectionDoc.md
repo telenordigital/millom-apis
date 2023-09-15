@@ -52,7 +52,7 @@ The Millom upstream API is documented on: <br>
 https://telenordigital.github.io/millom-apis/apis/service-providers
 
 The Postman collection can be imported into your Postman Workspace from here: <br>
-https://github.com/telenordigital/millom-apis#get-the-postman-collection
+    https://github.com/telenordigital/millom-apis#get-the-postman-collection
 
 ## A friendly request from the Millom team
 This Sandbox shall be used to familiar yourself with the Millom API, its requests and its responses. 

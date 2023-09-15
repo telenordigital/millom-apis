@@ -1,6 +1,6 @@
 openapi: 3.0.0
-servers: 
-- url: https://api.example.millom.com
+servers:
+- url: http://localhost:8080
 info:
   version: 1.2.0
   title: Millom standard service provider API
@@ -56,7 +56,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorDocument"
-                
+
   /std/{serviceProvider}/{subscriberId}/balance:
     get:
       summary: Get telco balance
@@ -103,7 +103,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorDocument"
-                
+
   /std/{serviceProvider}/{subscriberId}/upsellOffer:
     get:
       summary: Get upsellOffer
@@ -150,7 +150,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorDocument"
-                
+
   /std/{serviceProvider}/{subscriberId}/purchasePlan:
     post:
       summary: Purchase plan
@@ -302,7 +302,7 @@ components:
           example: "USD"
         balances:
           type: array
-          items: 
+          items:
             $ref: "#/components/schemas/AccountBalance"
           description: "A list of balance buckets. A list with balanceType 'main' should always be present if balance is exposed."
         validUntil:
@@ -313,26 +313,26 @@ components:
       type: object
       description: "Representation of a decimal balance as a quoted decimal number"
       properties:
-        balanceType: 
+        balanceType:
           type: string
-          description: "Name of this balance wallet. Common types are main, loan, and owed" 
+          description: "Name of this balance wallet. Common types are main, loan, and owed"
           example: "main"
-        balance: 
+        balance:
           type: string
           description: Monetary balance, as a quoted decimal number.
           format: currency
           example: "1.01"
-        expiry: 
+        expiry:
           type: string
           format: date-time
           description: "RFC 3339 formatted timestamp of this wallet's expiry."
-  
+
     BalanceResponse:
       type: object
       properties:
         activePlans:
           type: array
-          items: 
+          items:
             $ref: "#/components/schemas/ActivePlan"
           description: "A list of telco plans (data, sms, etc)"
         validUntil:
@@ -372,7 +372,7 @@ components:
               unit:
                 type: string
                 enum: ["bytes", "data-minutes", "voice-minutes", "sms"]
-              quota: 
+              quota:
                 type: number
                 example: 1073741824
                 description: >
@@ -387,8 +387,8 @@ components:
           items:
             type: string
             example: "video"
-        
-        
+
+
     OfferInfoResponse:
       required:
       - "subscriberState"
@@ -415,7 +415,7 @@ components:
     Offer:
       type: object
       properties:
-        planId: 
+        planId:
           type: string
           description: Unique ID for this offered plan
         cost:
@@ -426,7 +426,7 @@ components:
         costCurrency:
           type: string
           description: ISO 4217 code for the currency of the cost.
-        type: 
+        type:
           type: string
           description: Description of the type of dataplan this is.
           example: "Data"
@@ -434,9 +434,9 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/MultilingualText"
-        planDescription: 
+        planDescription:
           type: array
-          items: 
+          items:
             $ref: "#/components/schemas/MultilingualText"
         quota:
           description: The initial size of this plan, in bytes, minutes etc
@@ -458,10 +458,10 @@ components:
           type: string
           description: random text string with offer cookie data. \
             If present, it must be provided in activation request.
-            
+
     ActivationRequest:
       type: object
-      required: 
+      required:
       - "transid"
       - "planid"
       properties:
@@ -485,7 +485,7 @@ components:
           description: Identifies source of funds for this activation
           enum: [WALLET, LOAN]
           default: WALLET
-          
+
     ActivationResponse:
       type: object
       properties:
@@ -511,13 +511,13 @@ components:
           type: string
           description: Receipt code from operator on successful activations. \
             Uniquely identifies the activation on operator side.
-    
+
     MultilingualText:
       type: object
       properties:
-        language: 
+        language:
           type: string
-          description: What language the 'text' field is expressed as. BCP-47 language code 
+          description: What language the 'text' field is expressed as. BCP-47 language code
           example: "en-us"
         text:
           type: string
@@ -587,7 +587,7 @@ components:
       type: oauth2
       flows:
         clientCredentials:
-          tokenUrl: 'https://connect.staging.telenordigital.com'
+          tokenUrl: 'https://signin.telenorid-staging.com/oauth/token'
           scopes:
             cco.dd.data-plan.gen.inquire: Allows querying user details
             cco.dd.data-plan.gen.activate: Allows activating plans on behalf of the user
