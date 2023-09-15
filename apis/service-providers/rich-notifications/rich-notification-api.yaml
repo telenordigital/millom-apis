@@ -265,6 +265,13 @@ components:
             
             Can be used directly with a `GET` request.
           example: "https://millom.static.api/myspace/mycomm/7%2FC8NpcqRiX3rja4JslR83FtKXHSJnMgXJOXZ%2FawPWIge8WFcBt0CpmbXJVkac2f53GGjYqeGjlGjuiE1bKYJhh9J0t3dIK6iXnN7g0Fxnjv0rTV1XvgB95GN0folvrxG42GnPSYL21oLVSUrgdA8BJBdZZFW082ebg%2B%2Bn5dRsMJs96jFqD1o8rzoYq1rDh15o1Lgfe%2BEPIb6zk7FjYs3OLOSpkqo7hQZkg2UXI1OXNYcWg%3D%2C47001/ping?uuid=bbe5531d-0680-4632-a2ab-ff91e7e69f24&expirySeconds=1694515016&signature=5pmfikymoIJdEzjjMZoIVX1_BdbwGhBqpsfFNUVwr3c%3D"
+        shop:
+          type: string
+          description: >
+            A link _end-user client_ uses to open web-based Millom shop 
+            
+            Can be user in a webview or extermal browser.
+          example: "https://millom.static.api/myspace/mycomm/7%2FC8NpcqRiX3rja4JslR83FtKXHSJnMgXJOXZ%2FawPWIge8WFcBt0CpmbXJVkac2f53GGjYqeGjlGjuiE1bKYJhh9J0t3dIK6iXnN7g0Fxnjv0rTV1XvgB95GN0folvrxG42GnPSYL21oLVSUrgdA8BJBdZZFW082ebg%2B%2Bn5dRsMJs96jFqD1o8rzoYq1rDh15o1Lgfe%2BEPIb6zk7FjYs3OLOSpkqo7hQZkg2UXI1OXNYcWg%3D%2C47001?uuid=bbe5531d-0680-4632-a2ab-ff91e7e69f24&expirySeconds=1694515016&signature=5pmfikymoIJdEzjjMZoIVX1_BdbwGhBqpsfFNUVwr3c%3D"
     FundSource:
       type: string
       enum:

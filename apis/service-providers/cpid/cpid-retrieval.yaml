@@ -4,14 +4,21 @@ servers:
 info:
   version: 1.0.0
   title: Millom CPID generation API
-  description: >-
+  description: |
     This details Millom's API for CPID generation, an optional prerequisite for calling the Millom APIs.
+    
     The requirement is agreed with Millom depending on privacy requirements and data processing agreements.
-    CPID is an acronym for 'Carrier Plan IDentifier' - an anonymized user key for a specific user.
-    The API allows apps to obtain this CPID without seeing personal identifiers (eg MSISDNs)
+    
+    CPID is an acronym for &ldquo;Carrier Plan IDentifier&rdquo; &mdash; an anonymized user key for a specific user.
+    
+    The API allows apps to obtain this CPID without seeing personal identifiers (e.g. MSISDNs)
+    
     This CPID can be used instead of MSISDNs on the Millom upsell API.
+    
     The host to obtain CPID may vary per operator, as some legislations require this host deployed in the carriers network.
+    
     CPID API can only be called from an operator's packet network.
+    
     From outside the supported operator networks, it will provide an error response.
     The API uses cleartext http, because many implementations rely on header enrichment from the packet network.
 
