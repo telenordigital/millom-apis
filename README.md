@@ -34,11 +34,11 @@ Millom's upstream APIs connect to Service Providers and expose status, offers an
 In addition Millom provides a set of Managements API's that allow MNOs to look-up purchase status, 
 customer insight analytics, etc.
 
-| Exposing info to end-users                                                                                                         | Connecting and updating MNO's subscriber info                                                                                 | Service Management |
-|------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------| ------ |
-| &bullet; [Upsell API](apis/service-providers)<br />&bullet; [Rich notification-based Upsell API](apis/service-providers/rich-notifications) | [End-user Account integration](apis/operators/backend)                                                                        | Purchase look-up (TBA)|
-| [Generate CPID](apis/service-providers/cpid)                                                                                       | [Notification API](apis/operators/notification) | Data Feedback Loop (TBA) |
-|                                                                                                                                    | [Purchase callback API](apis/operators/purchase-callback)                                                                     | Settlements Reports (TBA) |
+| Exposing info to end-users                                                                                                    | Connecting and updating MNO's subscriber info                                                                                 | Service Management |
+|-------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------| ------ |
+| • [Upsell API](apis/service-providers)<br />• [Rich notification-based Upsell API](apis/service-providers/rich-notifications) | [End-user Account integration](apis/operators/backend)                                                                        | Purchase look-up (TBA)|
+| [Generate CPID](apis/service-providers/cpid)                                                                                  | [Notification API](apis/operators/notification) | Data Feedback Loop (TBA) |
+|                                                                                                                               | [Purchase callback API](apis/operators/purchase-callback)                                                                     | Settlements Reports (TBA) |
 
 ---
 ## Sandbox

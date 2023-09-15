@@ -1,8 +1,9 @@
 openapi: 3.0.0
 servers:
   - url: http://cpid.example.millom.com
+  - url: https://api.example.millom.com
 info:
-  version: 1.0.0
+  version: 1.1.0
   title: Millom CPID generation API
   description: |
     This details Millom's API for CPID generation, an optional prerequisite for calling the Millom APIs.
@@ -14,19 +15,23 @@ info:
     The API allows apps to obtain this CPID without seeing personal identifiers (e.g. MSISDNs)
     
     This CPID can be used instead of MSISDNs on the Millom upsell API.
-    
-    The host to obtain CPID may vary per operator, as some legislations require this host deployed in the carriers network.
-    
-    CPID API can only be called from an operator's packet network.
-    
-    From outside the supported operator networks, it will provide an error response.
-    The API uses cleartext http, because many implementations rely on header enrichment from the packet network.
 
 paths:
   /cpid:
     get:
+      servers:
+        - url: https://cpid.example.millom.com
       summary: Get CPID
-      description: Retrieve a carrier plan identifier for the subscription owner attached to current IP address
+      description: | 
+        Retrieve a carrier plan identifier for the subscription owner attached to current IP address
+        
+        The host to obtain CPID may vary per operator, as some legislations require this host deployed in the carriers network.
+        
+        CPID API can only be called from an operator's packet network.
+        
+        From outside the supported operator networks, it will provide an error response.
+        The API uses cleartext http, because many implementations rely on header enrichment from the packet network.
+
       parameters:
         - in: query
           name: app
@@ -80,3 +85,33 @@ paths:
                       * `USER_BARRED` - User not allowed to use service
                       * `INTERNAL_ERROR` - An unexpected software error
 
+  /{serviceProvider}/{operator}/registerCpid:
+    post:
+      servers:
+        - url: https://api.example.millom.com
+      summary: Register new CPID for incoming requests routing
+      description: | 
+        This call registers new CPID on Millom's side allowing to route
+        traffic towards service provider (e.g. notifications)
+        to the correct user regardless of the identifier used
+        in the interactions with operators and other integrated 
+        services.
+      parameters:
+        - name: serviceProvider
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: operator
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: app
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
