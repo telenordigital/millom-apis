@@ -10,7 +10,7 @@ info:
     is completely out of data.
 
 paths:
-  /defined/by/service/provider:
+  /notification/path/defined/by/service/provider:
     post:
       tags:
         - Implemented by service provider
@@ -46,7 +46,7 @@ paths:
         - serviceProviderAuthentication:
             - any
 
-  /{serviceProvider}/{operator}/{cpid}/offers:
+  /rnf/{serviceProvider}/{operator}/{cpid}/offers:
     get:
       summary: Refresh offers via signed link
       description: |
@@ -79,7 +79,7 @@ paths:
         400:
           description: Bad request
 
-  /{serviceProvider}/{operator}/{cpid}/ping:
+  /rnf/{serviceProvider}/{operator}/{cpid}/ping:
     get:
       summary: Check network connectivity
       description: |
@@ -108,7 +108,7 @@ paths:
         400:
           description: Bad request
 
-  /{serviceProvider}/{operator}/{cpid}/purchasePlan:
+  /rnf/{serviceProvider}/{operator}/{cpid}/purchasePlan:
     get:
       summary: Initiate purchase
       description: |
@@ -155,6 +155,57 @@ paths:
           description: Service unavailable
         400:
           description: Bad request
+  /callback/path/defined/by/service/provider/:
+    post:
+      summary: "Purchase callback"
+      description: "This is an async callback with a result of a plan activation attempt"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - "transactionId"
+                - "appId"
+              type: "object"
+              properties:
+                transactionId:
+                  type: "string"
+                  description: "Identifier of a transaction, the same as the purchase transactionId"
+                message:
+                  type: "string"
+                  description: "Can be anything. Generic purpose field, used to pass any information"
+                appId:
+                  type: "string"
+                  description: "Identifier of the Service Provider"
+                  example: "facebook"
+                  enum:
+                    - "google"
+                    - "facebook"
+                    - "facebook-cp"
+                    - "tiktok"
+                errorType:
+                  $ref: '../../operators/purchase-callback/millom-callback.yaml#/components/schemas/ErrorType'
+                errorCode:
+                  type: "string"
+                  example: "400.70.2"
+                  description: "Any error code to provide more insight into the problem, if required"
+                dryRun:
+                  type: "boolean"
+                  description: "a dry run. true - it's not going to be processed, only an OK response is going to be returned. false - callback is going to be processed. "
+                redirectLink:
+                  type: "string"
+                  description: "A redirect link to which the webview should redirect to (if applicable)"
+                  example: "http://someredirectlink.com/user/id"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad request. (missing mandatory query parameters or malformed\
+            \ body)"
+        "404":
+          description: "Not found. (Transaction not found in cache)"
+        "500":
+          description: "Server Internal error"
 
 
 components:
