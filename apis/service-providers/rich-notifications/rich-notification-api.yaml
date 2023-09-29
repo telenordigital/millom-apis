@@ -157,6 +157,8 @@ paths:
           description: Bad request
   /callback/path/defined/by/service/provider/:
     post:
+      tags:
+        - Implemented by service provider
       summary: "Purchase callback"
       description: "This is an async callback with a result of a plan activation attempt"
       requestBody:
