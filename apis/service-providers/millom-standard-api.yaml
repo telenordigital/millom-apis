@@ -10,7 +10,7 @@ info:
     retrieve (personalized) offers for a subscriber, and to activate those offers.
 
 paths:
-  /std/{serviceProvider}/{subscriberId}/accountInfo:
+  /std/{serviceProvider}/{operator}/{subscriberId}/accountInfo:
     get:
       summary: Get account information
       description: Retrieve a subscriber's account details, eg post/prepaid user and monetary balance
@@ -22,6 +22,12 @@ paths:
         required: true
         in: path
         description: Agreed service provider identifier to access the millom platform
+        schema:
+          type: string
+      - name: operator
+        required: false
+        in: path
+        description: Agreed operator identifier to access the millom platform. Can be omitted - the operator value will be extracted from subscriberId
         schema:
           type: string
       - name: subscriberId
@@ -57,7 +63,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorDocument"
 
-  /std/{serviceProvider}/{subscriberId}/balance:
+  /std/{serviceProvider}/{operator}/{subscriberId}/balance:
     get:
       summary: Get telco balance
       description: Retrieve a subscriber's currently subscribed plans with details
@@ -69,6 +75,12 @@ paths:
         required: true
         in: path
         description: Agreed service provider identifier to access the millom platform
+        schema:
+          type: string
+      - name: operator
+        required: false
+        in: path
+        description: Agreed operator identifier to access the millom platform. Can be omitted - the operator value will be extracted from subscriberId
         schema:
           type: string
       - name: subscriberId
@@ -104,7 +116,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorDocument"
 
-  /std/{serviceProvider}/{subscriberId}/upsellOffer:
+  /std/{serviceProvider}/{operator}/{subscriberId}/upsellOffer:
     get:
       summary: Get upsellOffer
       description: Retrieve a list of offers for a subscriber
@@ -116,6 +128,12 @@ paths:
         required: true
         in: path
         description: Agreed service provider identifier to access the millom platform
+        schema:
+          type: string
+      - name: operator
+        required: false
+        in: path
+        description: Agreed operator identifier to access the millom platform. Can be omitted - the operator value will be extracted from subscriberId
         schema:
           type: string
       - name: subscriberId
@@ -130,6 +148,16 @@ paths:
         schema:
           $ref: "#/components/schemas/KeyType"
         description: Type of subscriber ID. MSISDN, CPID or OPET.
+      - name: planType
+        required: false
+        in: query
+        schema:
+          $ref: "#/components/schemas/PlanType"
+        description: Type of plan type. principal or supplementary.
+      - name: dealerCode
+        required: false
+        in: query
+        description: dedicated dealer code
       - name: Accept-Language
         description: Requested language. Millom will attempt to return strings (plan IDs, descriptions) in this language, otherwise default language (english) will be used.
         required: false
@@ -151,7 +179,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorDocument"
 
-  /std/{serviceProvider}/{subscriberId}/purchasePlan:
+  /std/{serviceProvider}/{operator}/{subscriberId}/purchasePlan:
     post:
       summary: Purchase plan
       description: Activate the given offer for a subscriber. Payment will be deducted from the fund source.
@@ -163,6 +191,12 @@ paths:
         required: true
         in: path
         description: Agreed service provider identifier to access the millom platform
+        schema:
+          type: string
+      - name: operator
+        required: false
+        in: path
+        description: Agreed operator identifier to access the millom platform. Can be omitted - the operator value will be extracted from subscriberId
         schema:
           type: string
       - name: subscriberId
@@ -288,6 +322,10 @@ components:
         * ´CPID´ - Carrier Plan Identifier. An ID obtained by querying Millom's CPID generator (using the CPID API)
 
         * ´OPET´ - Operator Encrypted Token. An anonymized token encrypted by the operator and used towards operator APIs.
+    PlanType:
+      type: string
+      enum: [ principal, supplementary ]
+      default: principal
 
     AccountInfoResponse:
       type: object
@@ -339,6 +377,58 @@ components:
           type: string
           format: date-time
           description: "RFC 3339 formatted timestamp of when this balance record should be considered expired"
+        operator:
+          type: string
+          description: "operator name"
+          example: "celcom"
+        expiry:
+          type: string
+          format: date-time
+          description: "subscriber account expiry date of when this account should be considered expired"
+          example: "2099-12-31T23:59:59"
+        accountType:
+          type: string
+          enum: [ "PREPAID", "POSTPAID" ]
+          description: "Account payment specification: Postpaid (user has credit and is billed regularly) or Prepaid (user pays up front)"
+        ratePlanId:
+          type: string
+          description: "Unique ID for the main plan"
+        monetaryBalance:
+          type: object
+          description: "Representation of a decimal balance as a quoted decimal number"
+          properties:
+            expiry:
+              type: string
+              description: "date of when this balance record should be considered expired"
+              example: "2099-12-31T23:59:59"
+            balance:
+              type: string
+              description: "Monetary balance, as a quoted decimal number."
+              format: currency
+              example: "1.01"
+        dataBalance:
+          type: object
+          description: "Representation of a decimal data balance as a quoted decimal number"
+          properties:
+            expiry:
+              type: string
+              description: "date of when this balance record should be considered expired"
+              example: "2099-12-31T23:59:59"
+            balance:
+              type: string
+              description: "Data balance, as a quoted decimal number."
+              format: currency
+              example: "100"
+        tenure:
+          type: integer
+          description: "Number of days since the account activation"
+          example: 20
+        dateOfBirth:
+          type: string
+          format: date-time
+          description: "Subscriber's date of birth"
+          example: "1990-12-31T23:59:59"
+
     ActivePlan:
       type: object
       required:
