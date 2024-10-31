@@ -25,7 +25,7 @@ paths:
         schema:
           type: string
       - name: operator
-        required: false
+        required: true
         in: path
         description: Agreed operator identifier to access the millom platform. Can be omitted - the operator value will be extracted from subscriberId
         schema:
@@ -78,7 +78,7 @@ paths:
         schema:
           type: string
       - name: operator
-        required: false
+        required: true
         in: path
         description: Agreed operator identifier to access the millom platform. Can be omitted - the operator value will be extracted from subscriberId
         schema:
@@ -131,7 +131,7 @@ paths:
         schema:
           type: string
       - name: operator
-        required: false
+        required: true
         in: path
         description: Agreed operator identifier to access the millom platform. Can be omitted - the operator value will be extracted from subscriberId
         schema:
@@ -157,6 +157,8 @@ paths:
       - name: dealerCode
         required: false
         in: query
+        schema:
+          type: string
         description: dedicated dealer code
       - name: Accept-Language
         description: Requested language. Millom will attempt to return strings (plan IDs, descriptions) in this language, otherwise default language (english) will be used.
@@ -194,7 +196,7 @@ paths:
         schema:
           type: string
       - name: operator
-        required: false
+        required: true
         in: path
         description: Agreed operator identifier to access the millom platform. Can be omitted - the operator value will be extracted from subscriberId
         schema:
@@ -390,6 +392,10 @@ components:
           type: string
           enum: [ "PREPAID", "POSTPAID" ]
           description: "Account payment specification: Postpaid (user has credit and is billed regularly) or Prepaid (user pays up front)"
+        accountStatus:
+          type: string
+          enum: [ "ACTIVE", "INACTIVE" ]
+          description: "Account status: Active or Inactive"
         ratePlanId:
           type: string
           description: "Unique ID for the main plan"
