@@ -160,6 +160,12 @@ paths:
         schema:
           type: string
         description: dedicated dealer code
+      - name: clientName
+        required: false
+        in: query
+        schema:
+          type: string
+        description: requesting client name (supported values CRMS, MSA, OCS)
       - name: Accept-Language
         description: Requested language. Millom will attempt to return strings (plan IDs, descriptions) in this language, otherwise default language (english) will be used.
         required: false
@@ -213,6 +219,12 @@ paths:
         schema:
           $ref: "#/components/schemas/KeyType"
         description: Type of subscriber ID. MSISDN, CPID or OPET.
+      - name: clientName
+        required: false
+        in: query
+        schema:
+          type: string
+        description: requesting client name (supported values CRMS, MSA, OCS)
       - name: Accept-Language
         required: false
         in: header
