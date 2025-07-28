@@ -404,6 +404,9 @@ components:
           type: string
           enum: [ "PREPAID", "POSTPAID" ]
           description: "Account payment specification: Postpaid (user has credit and is billed regularly) or Prepaid (user pays up front)"
+        accountId:
+          type: string
+          description: "Account Identifier"
         accountStatus:
           type: string
           enum: [ "ACTIVE", "INACTIVE" ]
