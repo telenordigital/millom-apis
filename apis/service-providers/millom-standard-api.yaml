@@ -95,6 +95,12 @@ paths:
         schema:
           $ref: "#/components/schemas/KeyType"
         description: Type of subscriber ID. MSISDN, CPID or OPET.
+      - name: accountType
+        required: false
+        in: query
+        schema:
+          type: string
+        description: requesting accountType (supported values PREPAID, POSTPAID)
       - name: Accept-Language
         description: Requested language. Millom will attempt to return strings (plan IDs, descriptions) in this language, otherwise default language (english) will be used.
         required: false
@@ -166,6 +172,12 @@ paths:
         schema:
           type: string
         description: requesting client name (supported values CRMS, MSA, OCS)
+      - name: accountType
+        required: false
+        in: query
+        schema:
+           type: string
+        description: requesting accountType (supported values PREPAID, POSTPAID)
       - name: Accept-Language
         description: Requested language. Millom will attempt to return strings (plan IDs, descriptions) in this language, otherwise default language (english) will be used.
         required: false
@@ -321,6 +333,62 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorDocument"
 
+  /std/{serviceProvider}/{operator}/{subscriberId}/unsubscribe:
+    post:
+      summary: Unsubscribe userkey from plan
+      description: Unsubscribe a userkey (cpid) from a given plan subscription described in requested body.
+      security:
+        - application:
+            - cco.dd.data-plan.gen.activate
+      parameters:
+        - name: serviceProvider
+          required: true
+          in: path
+          description: Agreed service provider identifier to access the millom platform
+          schema:
+            type: string
+        - name: operator
+          required: true
+          in: path
+          description: Agreed operator identifier to access the millom platform. Can be omitted - the operator value will be extracted from subscriberId
+          schema:
+            type: string
+        - name: subscriberId
+          required: true
+          in: path
+          description: User identifier string. Can be MSISDN (default), or url-encoded CPID
+          schema:
+            type: string
+        - name: key_type
+          required: false
+          in: query
+          schema:
+            $ref: "#/components/schemas/KeyType"
+          description: Type of subscriber ID. MSISDN, CPID or OPET.
+        - name: language
+          required: false
+          in: header
+          description: Requested language. Millom will attempt to send notification detail strings (plan IDs, descriptions) in this language, otherwise default language (english) will be used.
+          schema:
+            type: string
+            default: "en"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UnsubscribeRequest"
+                
+
+      responses:
+        "200":
+          description: "OK - user registered for notifications. No body returned."
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDocument"
 
 components:
   schemas:
@@ -623,6 +691,28 @@ components:
           description: Receipt code from operator on successful activations. \
             Uniquely identifies the activation on operator side.
 
+    UnsubscribeRequest:
+        type: object
+        required:
+        - "transid"
+        - "planId"
+        - "planName"
+        - "accountType"
+        properties:
+          transactionId:
+            type: string
+            description: transaction ID for the unsubscribe request
+          planId:
+            type: string
+            description: ID for the plan to unsubscribe from
+          planName:
+            type: string
+            description: Name for the plan to unsubscribe from
+          accountType:
+            type: string
+            enum: [ "PREPAID", "POSTPAID" ]
+            description: "Account payment specification: Postpaid (user has credit and is billed regularly) or Prepaid (user pays up front)"
+            
     MultilingualText:
       type: object
       properties:
